@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using BIT;
 using Microsoft.Xna.Framework.Input;
 using System.Diagnostics;
 
@@ -34,7 +35,7 @@ namespace AnimpafGE.ECS.Components
 		/// <param name="translation">Вектор перемещения</param>
 		public void Translate(Vector2 translation) => Position += translation;
 		/// <summary>
-		/// Изменение развмеров объекта
+		/// Изменение размеров объекта
 		/// </summary>
 		/// <param name="scaling">Вектор увеличения</param>
 		public void Scale(Vector2 scaling) => Scaling += scaling;
@@ -56,12 +57,12 @@ namespace AnimpafGE.ECS.Components
 		{
 			if(!(Sprite is null))
 			{
-				Batch.Begin(samplerState: SamplerState.PointClamp);
+				Batch.Begin(samplerState: SamplerState.PointClamp, transformMatrix: ((Game1)Entity.Game).cam.GetMatrix(Core.graphicsDeviceManager.GraphicsDevice));
 				Batch.Draw(Sprite,							// Texture
 					Entity.Transform.Position,				// Position
 					null,									// Source rectangle
 					Color.White,							// Color
-					0,										// Rotation
+					0,                                      // Rotation
 					Sprite.Bounds.Size.ToVector2() / 2,		// Origin
 					Entity.Transform.Scaling,				// Scale
 					SpriteEffects.None,						// Mirroring effect

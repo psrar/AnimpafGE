@@ -9,13 +9,22 @@ namespace AnimpafGE.ECS
 {
 	class Entity
 	{
+		public Game Game { get; set; }
 		public string Name { get; set; }
 		public Transform Transform { get; set; }
 		List<Component> Components { get; set; } = new List<Component>();
 
-		public Entity(Vector2 position) => Transform = (Transform)AddComponent(new Transform(position));
+		public Entity(Game game, Vector2 position)
+		{
+			Game = game;
+			Transform = (Transform)AddComponent(new Transform(position));
+		}
 
-		public Entity() => Transform = (Transform)AddComponent(new Transform());
+		public Entity(Game game)
+		{
+			Game = game;
+			Transform = (Transform)AddComponent(new Transform());
+		}
 
 		/// <summary>
 		/// Обработчик компонентов этого объекта

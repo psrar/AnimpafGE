@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Diagnostics;
 using AnimpafGE.ECS.Components;
+using Microsoft.Xna.Framework;
 
 namespace AnimpafGE.ECS
 {
