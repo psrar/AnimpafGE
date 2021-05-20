@@ -7,16 +7,26 @@ namespace AnimpafGE.ECS.Components
 {
 	class SpriteRenderer : Component
 	{
-		Texture2D Sprite { get; set; }
+		public Texture2D Sprite { get; set; }
 		SpriteBatch Batch { get; }
 		Color Color { get; set; } = Color.White;
 
-		public new void Process()
+		public SpriteRenderer() => Batch = new SpriteBatch(Core.graphicsDeviceManager.GraphicsDevice);
+
+		public override void Process()
 		{
-			Trace.WriteLine("Child process method");
-			Batch.Begin();
-			Batch.Draw(Sprite, Entity.Position, Color);
-			Batch.End();
+			if(!(Sprite is null))
+			{
+				Trace.WriteLine("Child process method");
+				Batch.Begin();
+				Batch.Draw(Sprite, Entity.Position, Color);
+				Batch.End();
+			}
+			else
+			{
+				throw new System.Exception("Попытка вызвать обработку компонента, которого не " +
+					"существует для данного объекта.");
+			}
 		}
 	}
 }

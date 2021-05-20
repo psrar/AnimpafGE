@@ -9,9 +9,9 @@ namespace AnimpafGE.ECS
 	{
 		public Entity Entity { get; set; }
 		string Name { get; set; }
-		bool Enabled { get; set; }
+		bool Enabled { get; set; } = true;
 
-		public void Process()
+		public virtual void Process()
 		{
 			Trace.WriteLine("Base process method");
 			if(Enabled)
