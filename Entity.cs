@@ -3,18 +3,19 @@ using System.Collections.Generic;
 using System.Text;
 using System.Diagnostics;
 using Microsoft.Xna.Framework;
+using AnimpafGE.ECS.Components;
 
 namespace AnimpafGE.ECS
 {
 	class Entity
 	{
-		string Name { get; set; }
-		public Vector2 Position { get; set; }
+		public string Name { get; set; }
+		public Transform Transform { get; set; }
 		List<Component> Components { get; set; } = new List<Component>();
 
-		public Entity(Vector2 position) => Position = position;
+		public Entity(Vector2 position) => Transform = (Transform)AddComponent(new Transform(position));
 
-		public Entity() => Position = Vector2.Zero;
+		public Entity() => Transform = (Transform)AddComponent(new Transform());
 
 		/// <summary>
 		/// Обработчик компонентов этого объекта
@@ -29,15 +30,20 @@ namespace AnimpafGE.ECS
 		/// Добавляет объекту компонент
 		/// </summary>
 		/// <param name="component"></param>
-		public void AddComponent(Component component)
+		public Component AddComponent(Component component)
 		{
 			if(!Components.Contains(component))
 			{
 				Components.Add(component);
 				component.Entity = this;
+				return component;
 			}
-			else Trace.WriteLine($"Добавление компонента {component.ToString()} неудачно:\n" +
-				$"объект {this.ToString()} уже имеет данный компонент.");
+			else
+			{
+				Trace.WriteLine($"Добавление компонента {component.ToString()} неудачно:\n" +
+			  $"объект {this.ToString()} уже имеет данный компонент.");
+				return null;
+			}
 		}
 
 		/// <summary>

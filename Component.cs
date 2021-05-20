@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Diagnostics;
+using AnimpafGE.ECS.Components;
 
 namespace AnimpafGE.ECS
 {
@@ -11,11 +12,18 @@ namespace AnimpafGE.ECS
 		string Name { get; set; }
 		bool Enabled { get; set; } = true;
 
+		public Component()
+		{
+			Name = this.GetType().ToString();
+		}
+
 		public virtual void Process()
 		{
-			Trace.WriteLine("Base process method");
-			if(Enabled)
-				this.Process();
+			if(!(this is Transform))
+			{
+				if(Enabled)
+					this.Process();
+			}
 		}
 	}
 }

@@ -10,7 +10,6 @@ namespace AnimpafGE
 {
 	static class Core
 	{
-		static public SpriteBatch batch = null;
 		static public GraphicsDeviceManager graphicsDeviceManager = null;
 	}
 }
