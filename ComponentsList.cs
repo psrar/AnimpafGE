@@ -57,7 +57,6 @@ namespace AnimpafGE.ECS.Components
 		{
 			if(!(Sprite is null))
 			{
-				Batch.Begin(samplerState: SamplerState.PointClamp, transformMatrix: ((Scene)Entity.ParentScene).cam.GetMatrix(Core.Graphics.GraphicsDevice));
 				Batch.Draw(Sprite,							// Texture
 					Entity.Transform.Position,				// Position
 					null,									// Source rectangle
@@ -67,7 +66,6 @@ namespace AnimpafGE.ECS.Components
 					Entity.Transform.Scaling,				// Scale
 					SpriteEffects.None,						// Mirroring effect
 					Layer);									// Depth
-				Batch.End();
 			}
 			else
 			{

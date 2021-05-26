@@ -10,7 +10,7 @@ namespace AnimpafGE.ECS
 	class Component
 	{
 		public Entity Entity { get; set; }
-		string Name { get; set; }
+		public string Name { get; set; }
 		bool Enabled { get; set; } = true;
 
 		public Component()
