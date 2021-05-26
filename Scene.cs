@@ -14,6 +14,7 @@ namespace AnimpafGE.ECS
 	class Scene
 	{
 		Game ParentGame { get; set; }
+		ContentManager Content;
 
 		public string Name { get; set; }
 		public List<Entity> Objects { get; set; } = new List<Entity>();
@@ -27,6 +28,7 @@ namespace AnimpafGE.ECS
 		{
 			player = new(this);
 			ParentGame = game;
+			Content = ParentGame.Content;
 
 			Core.Graphics.PreferredBackBufferWidth = 1920;
 			Core.Graphics.PreferredBackBufferHeight = 1080;
@@ -41,7 +43,9 @@ namespace AnimpafGE.ECS
 			var Center = new Vector2(Core.Graphics.PreferredBackBufferWidth / 2, Core.Graphics.PreferredBackBufferHeight / 2);
 
 			player = new Entity(this);
+			Objects.Add(player);
 			player.AddComponent(new SpriteRenderer());
+			player.GetComponent<SpriteRenderer>().Sprite = Content.Load<Texture2D>("Player");
 			player.Transform.Position = Center;
 			cam.Pos = Center;
 		}
@@ -59,9 +63,12 @@ namespace AnimpafGE.ECS
 			if(Keyboard.GetState().IsKeyDown(Keys.A))
 				player.Transform.Translate(Vector2.UnitX * -playerSpeed);
 			if(Keyboard.GetState().IsKeyDown(Keys.OemCloseBrackets))
-				player.Transform.Scale(Vector2.One * -playerSpeed / 8);
+				if(player.Transform.Scaling.X <= 0)
+					player.Transform.Scaling = Vector2.Zero;
+				else
+					player.Transform.Scale(Vector2.One * -playerSpeed / 20);
 			if(Keyboard.GetState().IsKeyDown(Keys.OemOpenBrackets))
-				player.Transform.Scale(Vector2.One * playerSpeed / 8);
+				player.Transform.Scale(Vector2.One * playerSpeed / 20);
 
 			if(Keyboard.GetState().IsKeyDown(Keys.T))
 				cam.Move(Vector2.UnitY * -playerSpeed / 10);

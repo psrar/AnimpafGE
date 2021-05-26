@@ -24,6 +24,8 @@ namespace AnimpafGE.ECS
 		{
 			ParentScene = scene;
 			Transform = (Transform)AddComponent(new Transform());
+
+			scene.Objects.Add(this);
 		}
 
 		/// <summary>
