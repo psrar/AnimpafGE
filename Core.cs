@@ -10,6 +10,6 @@ namespace AnimpafGE
 {
 	static class Core
 	{
-		static public GraphicsDeviceManager graphicsDeviceManager = null;
+		static public GraphicsDeviceManager Graphics = null;
 	}
 }

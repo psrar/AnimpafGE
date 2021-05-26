@@ -51,13 +51,13 @@ namespace AnimpafGE.ECS.Components
 		Color Color { get; set; } = Color.White;
 		int Layer { get; set; } = 0;
 
-		public SpriteRenderer() => Batch = new SpriteBatch(Core.graphicsDeviceManager.GraphicsDevice);
+		public SpriteRenderer() => Batch = new SpriteBatch(Core.Graphics.GraphicsDevice);
 
 		public override void Process()
 		{
 			if(!(Sprite is null))
 			{
-				Batch.Begin(samplerState: SamplerState.PointClamp, transformMatrix: ((Game1)Entity.Game).cam.GetMatrix(Core.graphicsDeviceManager.GraphicsDevice));
+				Batch.Begin(samplerState: SamplerState.PointClamp, transformMatrix: ((Scene)Entity.ParentScene).cam.GetMatrix(Core.Graphics.GraphicsDevice));
 				Batch.Draw(Sprite,							// Texture
 					Entity.Transform.Position,				// Position
 					null,									// Source rectangle

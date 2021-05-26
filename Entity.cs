@@ -9,20 +9,20 @@ namespace AnimpafGE.ECS
 {
 	class Entity
 	{
-		public Game Game { get; set; }
+		public Scene ParentScene { get; set; }
 		public string Name { get; set; }
 		public Transform Transform { get; set; }
 		List<Component> Components { get; set; } = new List<Component>();
 
-		public Entity(Game game, Vector2 position)
+		public Entity(Scene scene, Vector2 position)
 		{
-			Game = game;
+			ParentScene = scene;
 			Transform = (Transform)AddComponent(new Transform(position));
 		}
 
-		public Entity(Game game)
+		public Entity(Scene scene)
 		{
-			Game = game;
+			ParentScene = scene;
 			Transform = (Transform)AddComponent(new Transform());
 		}
 
