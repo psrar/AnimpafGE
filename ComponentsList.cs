@@ -61,7 +61,7 @@ namespace AnimpafGE.ECS.Components
 				Batch.Draw(Sprite,							// Texture
 					Entity.Transform.Position,				// Position
 					null,									// Source rectangle
-					Color.White,							// Color
+					Color,							// Color
 					0,                                      // Rotation
 					Sprite.Bounds.Size.ToVector2() / 2,		// Origin
 					Entity.Transform.Scaling,				// Scale
@@ -75,5 +75,13 @@ namespace AnimpafGE.ECS.Components
 					"существует для данного объекта.");
 			}
 		}
+	}
+
+	/// <summary>
+	/// Компнонент, отвечающий за применение к объекту физической силы
+	/// </summary>
+	class RigidBody
+	{
+
 	}
 }

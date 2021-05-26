@@ -49,8 +49,8 @@ namespace AnimpafGE.ECS
 			}
 			else
 			{
-				Trace.WriteLine($"Добавление компонента {component.ToString()} неудачно:\n" +
-			  $"объект {this.ToString()} уже имеет данный компонент.");
+				Trace.WriteLine($"Добавление компонента {component} неудачно:\n" +
+			  $"объект {this} уже имеет данный компонент.");
 				return null;
 			}
 		}
@@ -63,10 +63,10 @@ namespace AnimpafGE.ECS
 		public T GetComponent<T>() where T : Component
 		{
 			foreach(Component component in Components)
-				if(component is T)
+				if(component is T t)
 				{
 					Trace.WriteLine($"Component {component.GetType()} found.");
-					return (T)component;
+					return t;
 				}
 			return null;
 		}
