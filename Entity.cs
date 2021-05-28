@@ -18,12 +18,14 @@ namespace AnimpafGE.ECS
 		public Entity(Scene scene, Vector2 position)
 		{
 			ParentScene = scene;
+			Name = this.GetHashCode().ToString();
 			Transform = (Transform)AddComponent<Transform>(new Transform(position));
 		}
 
 		public Entity(Scene scene)
 		{
 			ParentScene = scene;
+			Name = this.GetHashCode().ToString();
 			Transform = (Transform)AddComponent<Transform>(new Transform());
 
 			scene.Objects.Add(this);
@@ -44,7 +46,7 @@ namespace AnimpafGE.ECS
 		/// <param name="component"></param>
 		public Component AddComponent<T>(Component component) where T : Component
 		{
-			
+
 			if(!Components.OfType<T>().Any())
 			{
 				Components.Add(component);
@@ -54,7 +56,7 @@ namespace AnimpafGE.ECS
 			else
 			{
 				Trace.WriteLine($"Добавление компонента {component} невозможно:\n" +
-			  $"объект {this} уже имеет данный компонент.");
+			  $"объект {Name} уже имеет данный компонент.");
 				return null;
 			}
 		}
@@ -66,13 +68,17 @@ namespace AnimpafGE.ECS
 		/// <returns></returns>
 		public T GetComponent<T>() where T : Component
 		{
-			foreach(Component component in Components)
-				if(component is T t)
-				{
-					Trace.WriteLine($"Component {component.GetType()} found.");
-					return t;
-				}
-			return null;
+			List<T> complist = Components.OfType<T>().ToList();
+			if(complist.Any())
+				return complist[0];
+			else
+				throw new Exception("Попытка найти несуществующий или неприкрепленный компонент для объекта " + Name);
+			//foreach(Component component in Components)
+			//	if(component is T t)
+			//	{
+			//		Trace.WriteLine($"Component {component.GetType()} found.");
+			//		return t;
+			//	}
 		}
 	}
 }

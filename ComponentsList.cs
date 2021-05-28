@@ -67,11 +67,6 @@ namespace AnimpafGE.ECS.Components
 					SpriteEffects.None,						// Mirroring effect
 					Layer);									// Depth
 			}
-			else
-			{
-				throw new System.Exception("Попытка вызвать обработку компонента, которого не " +
-					"существует для данного объекта.");
-			}
 		}
 	}
 
