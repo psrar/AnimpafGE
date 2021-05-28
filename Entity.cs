@@ -15,20 +15,19 @@ namespace AnimpafGE.ECS
 		public Transform Transform { get; set; }
 		List<Component> Components { get; set; } = new List<Component>();
 
-		public Entity(Scene scene, Vector2 position)
-		{
-			ParentScene = scene;
-			Name = this.GetHashCode().ToString();
-			Transform = (Transform)AddComponent<Transform>(new Transform(position));
-		}
-
 		public Entity(Scene scene)
 		{
 			ParentScene = scene;
 			Name = this.GetHashCode().ToString();
-			Transform = (Transform)AddComponent<Transform>(new Transform());
+			Transform = AddComponent<Transform>();
 
 			scene.Objects.Add(this);
+		}
+		public Entity(Scene scene, Vector2 position)
+		{
+			ParentScene = scene;
+			Name = this.GetHashCode().ToString();
+			Transform = (Transform)AddComponent<Transform>().SetPosition(position);
 		}
 
 		/// <summary>
@@ -44,13 +43,15 @@ namespace AnimpafGE.ECS
 		/// Добавляет объекту компонент
 		/// </summary>
 		/// <param name="component"></param>
-		public Component AddComponent<T>(Component component) where T : Component
+		public T AddComponent<T>() where T : Component, new()
 		{
+			T component = new ();
+			component.Entity = this;
+			component.Init();
 
 			if(!Components.OfType<T>().Any())
 			{
 				Components.Add(component);
-				component.Entity = this;
 				return component;
 			}
 			else

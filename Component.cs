@@ -18,6 +18,8 @@ namespace AnimpafGE.ECS
 			Name = this.GetType().ToString();
 		}
 
+		public virtual void Init() { }
+
 		public virtual void Process()
 		{
 			if(!(this is Transform))

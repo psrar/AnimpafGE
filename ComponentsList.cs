@@ -12,31 +12,36 @@ namespace AnimpafGE.ECS.Components
 	/// </summary>
 	class Transform : Component
 	{
-		/// <summary>
-		/// Расположение объекта на сцене
-		/// </summary>
-		public Vector2 Position { get; set; }
-
-		/// <summary>
-		/// Масштаб объекта
-		/// </summary>
+		/// <summary>Расположение объекта на сцене</summary>
+		public Vector2 Position { get; set; } = Vector2.Zero;
+		/// <summary>Масштаб объекта</summary>
 		public Vector2 Scaling { get; set; } = Vector2.One;
-
-		/// <summary>
-		/// Вращение объекта
-		/// </summary>
+		/// <summary>Вращение объекта</summary>
 		public float Rotation { get; set; } = 0;
 
-		public Transform(Vector2? position = null) => Position = position is null ? Vector2.Zero : (Vector2)position;
+		#region Setters
+		public Transform SetPosition(Vector2 position)
+		{
+			Position = position;
+			return this;
+		}
+		public Transform SetScaling(Vector2 scaling)
+		{
+			Scaling = scaling;
+			return this;
+		}
+		public Transform SetRotation(float rotation)
+		{
+			Rotation = rotation;
+			return this;
+		}
+		#endregion
 
-		/// <summary>
-		/// Метод грубого (нефизичного) перемещения объекта
-		/// </summary>
+		/// <summary>Метод грубого (нефизичного) перемещения объекта</summary>
 		/// <param name="translation">Вектор перемещения</param>
 		public void Translate(Vector2 translation) => Position += translation;
-		/// <summary>
-		/// Изменение размеров объекта
-		/// </summary>
+
+		/// <summary>Изменение размеров объекта</summary>
 		/// <param name="scaling">Вектор увеличения</param>
 		public void Scale(Vector2 scaling) => Scaling += scaling;
 	}
@@ -47,25 +52,28 @@ namespace AnimpafGE.ECS.Components
 	class SpriteRenderer : Component
 	{
 		public Texture2D Sprite { get; set; }
-		SpriteBatch Batch { get; }
+		SpriteBatch Batch { get; set; }
 		Color Color { get; set; } = Color.White;
 		int Layer { get; set; } = 0;
 
-		public SpriteRenderer() => Batch = new SpriteBatch(Core.Graphics.GraphicsDevice);
+		public override void Init()
+		{
+			Batch = Entity.ParentScene.spriteBatch;
+		}
 
 		public override void Process()
 		{
 			if(!(Sprite is null))
 			{
-				Batch.Draw(Sprite,							// Texture
-					Entity.Transform.Position,				// Position
-					null,									// Source rectangle
-					Color,									// Color
+				Batch.Draw(Sprite,                          // Texture
+					Entity.Transform.Position,              // Position
+					null,                                   // Source rectangle
+					Color,                                  // Color
 					0,                                      // Rotation
-					Sprite.Bounds.Size.ToVector2() / 2,		// Origin
-					Entity.Transform.Scaling,				// Scale
-					SpriteEffects.None,						// Mirroring effect
-					Layer);									// Depth
+					Sprite.Bounds.Size.ToVector2() / 2,     // Origin
+					Entity.Transform.Scaling,               // Scale
+					SpriteEffects.None,                     // Mirroring effect
+					Layer);                                 // Depth
 			}
 		}
 	}

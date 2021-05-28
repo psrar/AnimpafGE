@@ -17,7 +17,7 @@ namespace AnimpafGE.ECS
 		public string Name { get; set; }
 		public List<Entity> Objects { get; set; } = new List<Entity>();
 
-		SpriteBatch spriteBatch;
+		public SpriteBatch spriteBatch;
 
 		protected Scene(Game game)
 		{
