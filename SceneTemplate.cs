@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using AnimpafGE.ECS;
+using AnimpafGE.ECS.Components;
 using Microsoft.Xna.Framework;
+using System.Diagnostics;
 
 namespace AnimpafGE.ECS
 {
@@ -17,17 +15,26 @@ namespace AnimpafGE.ECS
 
 		public override void Initialize()
 		{
-			//throw new NotImplementedException();
+			base.Initialize();
+
+			//Write your initialization logic here
+		}
+
+		public override void LoadContent()
+		{
+			//Write your loading code here
 		}
 
 		public override void Process()
 		{
-			//throw new NotImplementedException();
+			//Write your Process (Update) code here
 		}
 
-		public new void Render()
+		public override void Render()
 		{
 			base.Render();
+
+			//Write your render code here
 		}
 	}
 }

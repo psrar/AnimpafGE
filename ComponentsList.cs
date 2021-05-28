@@ -60,7 +60,7 @@ namespace AnimpafGE.ECS.Components
 				Batch.Draw(Sprite,							// Texture
 					Entity.Transform.Position,				// Position
 					null,									// Source rectangle
-					Color,							// Color
+					Color,									// Color
 					0,                                      // Rotation
 					Sprite.Bounds.Size.ToVector2() / 2,		// Origin
 					Entity.Transform.Scaling,				// Scale

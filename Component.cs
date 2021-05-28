@@ -7,7 +7,7 @@ using Microsoft.Xna.Framework;
 
 namespace AnimpafGE.ECS
 {
-	class Component
+	abstract class Component
 	{
 		public Entity Entity { get; set; }
 		public string Name { get; set; }
@@ -23,7 +23,7 @@ namespace AnimpafGE.ECS
 			if(!(this is Transform))
 			{
 				if(Enabled)
-					this.Process();
+					Process();
 			}
 		}
 	}

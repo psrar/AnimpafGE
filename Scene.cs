@@ -3,10 +3,8 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Content;
+using System.Diagnostics;
 using AnimpafGE.ECS.Components;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Xna.Framework.Input;
 
 namespace AnimpafGE.ECS
@@ -19,20 +17,31 @@ namespace AnimpafGE.ECS
 		public string Name { get; set; }
 		public List<Entity> Objects { get; set; } = new List<Entity>();
 
+		SpriteBatch spriteBatch;
+
 		protected Scene(Game game)
 		{
 			ParentGame = game;
 			Content = ParentGame.Content;
 		}
 
-		public abstract void Initialize();
+		public virtual void Initialize()
+		{
+			spriteBatch = new(Core.Graphics.GraphicsDevice);
+		}
+
+		public abstract void LoadContent();
 
 		public abstract void Process();
 
-		public void Render()
+		public virtual void Render()
 		{
+			spriteBatch.Begin(samplerState: SamplerState.PointClamp);
+
 			foreach(Entity entity in Objects)
 				entity.Process();
+
+			spriteBatch.End();
 		}
 	}
 }

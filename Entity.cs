@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 using System.Diagnostics;
 using Microsoft.Xna.Framework;
 using AnimpafGE.ECS.Components;
@@ -17,13 +18,13 @@ namespace AnimpafGE.ECS
 		public Entity(Scene scene, Vector2 position)
 		{
 			ParentScene = scene;
-			Transform = (Transform)AddComponent(new Transform(position));
+			Transform = (Transform)AddComponent<Transform>(new Transform(position));
 		}
 
 		public Entity(Scene scene)
 		{
 			ParentScene = scene;
-			Transform = (Transform)AddComponent(new Transform());
+			Transform = (Transform)AddComponent<Transform>(new Transform());
 
 			scene.Objects.Add(this);
 		}
@@ -41,9 +42,10 @@ namespace AnimpafGE.ECS
 		/// Добавляет объекту компонент
 		/// </summary>
 		/// <param name="component"></param>
-		public Component AddComponent(Component component)
+		public Component AddComponent<T>(Component component) where T : Component
 		{
-			if(!Components.Contains(component))
+			
+			if(!Components.OfType<T>().Any())
 			{
 				Components.Add(component);
 				component.Entity = this;
@@ -51,7 +53,7 @@ namespace AnimpafGE.ECS
 			}
 			else
 			{
-				Trace.WriteLine($"Добавление компонента {component} неудачно:\n" +
+				Trace.WriteLine($"Добавление компонента {component} невозможно:\n" +
 			  $"объект {this} уже имеет данный компонент.");
 				return null;
 			}
