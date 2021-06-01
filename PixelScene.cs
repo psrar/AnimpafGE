@@ -13,11 +13,13 @@ namespace AnimpafGE.ECS
 		static int mapx = 100, mapy = 100, pixelSize = 10;
 		Entity[,] pixelMap = new Entity[mapx, mapy];
 
+		Vector2 mousePosition = Vector2.Zero;
+
 		public PixelScene(Game game, string name = null) : base(game)
 		{
 			Name = name ?? "SimpleScene";
 			ParentGame.IsMouseVisible = true;
-			Core.Graphics.IsFullScreen = true;
+			//Core.Graphics.IsFullScreen = true;
 		}
 
 		public override void Initialize()
@@ -47,6 +49,16 @@ namespace AnimpafGE.ECS
 		public override void Process()
 		{
 			//Write your Process (Update) code here
+			if(Mouse.GetState().LeftButton == ButtonState.Pressed)
+			{
+				mousePosition = Mouse.GetState().Position.ToVector2();
+				mousePosition = new Vector2(mousePosition.X / pixelSize, mousePosition.Y / pixelSize);
+				Trace.WriteLine(mousePosition);
+				if(mousePosition.X > 0 && mousePosition.Y > 0 )
+				{
+					pixelMap[(int)mousePosition.X, (int)mousePosition.Y].GetComponent<SpriteRenderer>().Color = Color.Black;
+				}
+			}
 		}
 
 		public override void Render()

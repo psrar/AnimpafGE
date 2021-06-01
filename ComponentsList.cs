@@ -57,7 +57,7 @@ namespace AnimpafGE.ECS.Components
 	{
 		public Texture2D Sprite { get; set; }
 		SpriteBatch Batch { get; set; }
-		Color Color { get; set; } = Color.White;
+		public Color Color { get; set; } = Color.White;
 		int Layer { get; set; } = 0;
 
 		public override void Init()
