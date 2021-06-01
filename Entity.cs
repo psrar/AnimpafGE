@@ -73,7 +73,7 @@ namespace AnimpafGE.ECS
 			if(complist.Any())
 				return complist[0];
 			else
-				throw new Exception("Попытка найти несуществующий или неприкрепленный компонент для объекта " + Name);
+				throw new Exception("Попытка найти несуществующий или неприкрепленный компонент " + typeof(T) + " для объекта " + Name);
 			//foreach(Component component in Components)
 			//	if(component is T t)
 			//	{

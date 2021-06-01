@@ -36,6 +36,7 @@ namespace AnimpafGE.ECS
 
 		public virtual void Render()
 		{
+
 			spriteBatch.Begin(samplerState: SamplerState.PointClamp);
 
 			foreach(Entity entity in Objects)

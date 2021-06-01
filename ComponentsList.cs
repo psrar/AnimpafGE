@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using BIT;
 using Microsoft.Xna.Framework.Input;
@@ -44,6 +45,9 @@ namespace AnimpafGE.ECS.Components
 		/// <summary>Изменение размеров объекта</summary>
 		/// <param name="scaling">Вектор увеличения</param>
 		public void Scale(Vector2 scaling) => Scaling += scaling;
+		/// <summary>Изменение размеров объекта</summary>
+		/// <param name="scaling">Вектор увеличения</param>
+		public void Scale(int scaling) => Scaling += new Vector2(scaling, scaling);
 	}
 
 	/// <summary>
@@ -75,6 +79,12 @@ namespace AnimpafGE.ECS.Components
 					SpriteEffects.None,                     // Mirroring effect
 					Layer);                                 // Depth
 			}
+		}
+
+		public void SetRandomColor()
+		{
+			Random rnd = new();
+			Color = new Color(rnd.Next(256), rnd.Next(256), rnd.Next(256));
 		}
 	}
 
