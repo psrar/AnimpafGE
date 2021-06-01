@@ -11,6 +11,5 @@ namespace AnimpafGE
 	static class Core
 	{
 		static public GraphicsDeviceManager Graphics = null;
-		//sdas
 	}
 }
