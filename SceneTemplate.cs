@@ -25,14 +25,14 @@ namespace AnimpafGE.ECS
 			//Write your loading code here
 		}
 
-		public override void Process()
+		public override void Process(GameTime gameTime)
 		{
 			//Write your Process (Update) code here
 		}
 
-		public override void Render()
+		public override void Render(GameTime gameTime)
 		{
-			base.Render();
+			base.Render(gameTime);
 
 			//Write your render code here
 		}

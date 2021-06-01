@@ -32,9 +32,9 @@ namespace AnimpafGE.ECS
 
 		public abstract void LoadContent();
 
-		public abstract void Process();
+		public abstract void Process(GameTime gameTime);
 
-		public virtual void Render()
+		public virtual void Render(GameTime gameTime)
 		{
 
 			spriteBatch.Begin(samplerState: SamplerState.PointClamp);

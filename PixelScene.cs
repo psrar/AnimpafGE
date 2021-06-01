@@ -10,7 +10,8 @@ namespace AnimpafGE.ECS
 {
 	class PixelScene : Scene
 	{
-		static int mapx = 100, mapy = 100, pixelSize = 10;
+		static int pixelSize = 10, mapx = Core.Graphics.PreferredBackBufferWidth / pixelSize + 1,
+			mapy = Core.Graphics.PreferredBackBufferHeight / pixelSize + 1;
 		Entity[,] pixelMap = new Entity[mapx, mapy];
 
 		Vector2 mousePosition = Vector2.Zero;
@@ -19,7 +20,6 @@ namespace AnimpafGE.ECS
 		{
 			Name = name ?? "SimpleScene";
 			ParentGame.IsMouseVisible = true;
-			//Core.Graphics.IsFullScreen = true;
 		}
 
 		public override void Initialize()
@@ -46,24 +46,27 @@ namespace AnimpafGE.ECS
 			//Write your loading code here
 		}
 
-		public override void Process()
+		public override void Process(GameTime gameTime)
 		{
+			int time = DateTime.Now.Millisecond;
 			//Write your Process (Update) code here
 			if(Mouse.GetState().LeftButton == ButtonState.Pressed)
 			{
 				mousePosition = Mouse.GetState().Position.ToVector2();
-				mousePosition = new Vector2(mousePosition.X / pixelSize, mousePosition.Y / pixelSize);
-				Trace.WriteLine(mousePosition);
-				if(mousePosition.X > 0 && mousePosition.Y > 0 )
+				mousePosition = Vector2.Clamp(new Vector2(mousePosition.X / pixelSize, mousePosition.Y / pixelSize),
+					Vector2.Zero, ParentGame.Window.ClientBounds.Size.ToVector2() / pixelSize);
+				if(true)
 				{
 					pixelMap[(int)mousePosition.X, (int)mousePosition.Y].GetComponent<SpriteRenderer>().Color = Color.Black;
 				}
 			}
+
+			Trace.WriteLine("Ms: " + (DateTime.Now.Millisecond - time));
 		}
 
-		public override void Render()
+		public override void Render(GameTime gameTime)
 		{
-			base.Render();
+			base.Render(gameTime);
 
 			//Write your render code here
 		}
