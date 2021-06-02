@@ -105,6 +105,8 @@ namespace AnimpafGE.ECS.Components
 		Vector2 Gravity = new Vector2(0, 9800/2);
 
 		public Vector2 Velocity { get; set; }
+		private Vector2 MinVelocity { get; set; }
+		private Vector2 MaxVelocity { get; set; }
 
 		float deltaTime;
 
@@ -113,6 +115,7 @@ namespace AnimpafGE.ECS.Components
 			deltaTime = Entity.ParentScene.GameTime.ElapsedGameTime.Milliseconds / 1000f;
 			if(UseGravity)
 				Velocity += Gravity * deltaTime;
+
 			Entity.Transform.Position += Velocity * deltaTime;
 		}
 	}

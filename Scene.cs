@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
-using System.Diagnostics;
-using AnimpafGE.ECS.Components;
-using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Graphics;
+using System.Collections.Generic;
 
 namespace AnimpafGE.ECS
 {

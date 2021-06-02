@@ -1,6 +1,7 @@
 ﻿using System;
 using AnimpafGE.ECS;
 using AnimpafGE.ECS.Components;
+using AnimpafGE.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -12,6 +13,8 @@ namespace AnimpafGE.ECS
 	{
 		static int pixelSize, mapx, mapy;
 		Entity[,] pixelMap;
+
+		TextureCanvas Background;
 
 		Entity player;
 
@@ -27,23 +30,6 @@ namespace AnimpafGE.ECS
 		{
 			base.Initialize();
 
-			pixelSize = 30;
-			mapx = Core.Graphics.PreferredBackBufferWidth / pixelSize + 1;
-			mapy = Core.Graphics.PreferredBackBufferHeight / pixelSize + 1;
-			pixelMap = new Entity[mapx, mapy];
-
-			//Write your initialization logic here
-
-			pixelMap = new Entity[mapx, mapy];
-
-			for(int y = 0; y < mapy; y++)
-			{
-				for(int x = 0; x < mapx; x++)
-				{
-					pixelMap[x, y] = new Entity(this);
-					pixelMap[x, y].AddComponent<SpriteRenderer>().Sprite = Content.Load<Texture2D>("Pixel");
-				}
-			}
 			InitPixelMap();
 
 			player = new Entity(this);
@@ -90,24 +76,22 @@ namespace AnimpafGE.ECS
 		public override void Render(GameTime gameTime)
 		{
 			int time = DateTime.Now.Millisecond;
+			//Write your render code here
+
+			spriteBatch.Begin();
+			spriteBatch.Draw(Background.Texture, Vector2.Zero, Color.White);
+			spriteBatch.End();
+
 			base.Render(gameTime);
 
-			//Write your render code here
 			Trace.WriteLine("Ms: " + (DateTime.Now.Millisecond - time));
+
 		}
 
 		public void InitPixelMap()
 		{
-			Core.Graphics.GraphicsDevice.Clear(Color.White);
-			for(int y = 0; y < mapy; y++)
-			{
-				for(int x = 0; x < mapx; x++)
-				{
-					pixelMap[x, y].Transform.Scaling = new Vector2(pixelSize);
-					pixelMap[x, y].Transform.Position = new Vector2(x * pixelSize, y * pixelSize);
-					pixelMap[x, y].GetComponent<SpriteRenderer>().SetRandomColor();
-				}
-			}
+			Background = new(Core.Graphics.GraphicsDevice, Core.Graphics.PreferredBackBufferWidth,
+				Core.Graphics.PreferredBackBufferHeight, Color.BlanchedAlmond);
 		}
 	}
 }
