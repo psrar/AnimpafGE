@@ -27,6 +27,8 @@ namespace AnimpafGE.ECS
 
 		public override void Process(GameTime gameTime)
 		{
+			base.Process(gameTime);
+
 			//Write your Process (Update) code here
 		}
 

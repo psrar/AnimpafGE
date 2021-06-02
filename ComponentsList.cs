@@ -84,15 +84,46 @@ namespace AnimpafGE.ECS.Components
 		public void SetRandomColor()
 		{
 			Random rnd = new();
-			Color = new Color(rnd.Next(256), rnd.Next(256), rnd.Next(256));
+			Color = new Color(rnd.Next(20), rnd.Next(20), rnd.Next(235, 256));
 		}
 	}
 
 	/// <summary>
-	/// Компнонент, отвечающий за применение к объекту физической силы
+	/// Компонент, отвечающий за физику объекта
 	/// </summary>
-	class RigidBody
+	class RigidBody : Component
 	{
+		enum RigidType
+		{
+			/// <summary>К статическим объектам не применяется никакая сила</summary>
+			Static = 0,
+			/// <summary>Динамические объекты перемещаются свободно под действием внешних сил или кода</summary>
+			Dynamic = 1
+		}
 
+		public bool UseGravity { get; set; }
+		Vector2 Gravity = new Vector2(0, 9800/2);
+
+		public Vector2 Velocity { get; set; }
+
+		float deltaTime;
+
+		public override void Process()
+		{
+			deltaTime = Entity.ParentScene.GameTime.ElapsedGameTime.Milliseconds / 1000f;
+			if(UseGravity)
+				Velocity += Gravity * deltaTime;
+			Entity.Transform.Position += Velocity * deltaTime;
+		}
+	}
+
+	class BoxCollider : Component
+	{
+		Rectangle Collider { get; set; }
+
+		public override void Init()
+		{
+			Collider = new Rectangle(Entity.Transform.Position.ToPoint(), Point.Zero);
+		}
 	}
 }

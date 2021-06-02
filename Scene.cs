@@ -14,6 +14,8 @@ namespace AnimpafGE.ECS
 		protected Game ParentGame { get; set; }
 		protected ContentManager Content { get; set; }
 
+		public GameTime GameTime { get; set; }
+
 		public string Name { get; set; }
 		public List<Entity> Objects { get; set; } = new List<Entity>();
 
@@ -32,7 +34,10 @@ namespace AnimpafGE.ECS
 
 		public abstract void LoadContent();
 
-		public abstract void Process(GameTime gameTime);
+		public virtual void Process(GameTime gameTime)
+		{
+			GameTime = gameTime;
+		}
 
 		public virtual void Render(GameTime gameTime)
 		{
