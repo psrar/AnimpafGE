@@ -59,15 +59,29 @@ namespace AnimpafGE.ECS.Components
 		SpriteBatch Batch { get; set; }
 		public Color Color { get; set; } = Color.White;
 		int Layer { get; set; } = 0;
+		public Vector2 TopLeft { get; set; }
+		public Vector2 BottomRight { get; set; }
+
 
 		public override void Init()
 		{
 			Batch = Entity.ParentScene.spriteBatch;
+			if(Sprite != null)
+			{
+				TopLeft = new Vector2(Sprite.Bounds.Size.X * Entity.Transform.Scaling.X / 2,
+					Sprite.Bounds.Size.Y * Entity.Transform.Scaling.Y / 2);
+				BottomRight = TopLeft;
+			}
+			else
+			{
+				TopLeft = Entity.Transform.Position;
+				BottomRight = TopLeft;
+			}
 		}
 
 		public override void Process()
 		{
-			if(!(Sprite is null))
+			if(Sprite != null)
 			{
 				Batch.Draw(Sprite,                          // Texture
 					Entity.Transform.Position,              // Position
@@ -84,7 +98,7 @@ namespace AnimpafGE.ECS.Components
 		public void SetRandomColor()
 		{
 			Random rnd = new();
-			Color = new Color(rnd.Next(20), rnd.Next(20), rnd.Next(235, 256));
+			Color = new Color(rnd.Next(256), rnd.Next(256), rnd.Next(256));
 		}
 	}
 
@@ -102,7 +116,7 @@ namespace AnimpafGE.ECS.Components
 		}
 
 		public bool UseGravity { get; set; }
-		Vector2 Gravity = new Vector2(0, 9800/2);
+		Vector2 Gravity = new Vector2(0, 9800 / 2);
 
 		public Vector2 Velocity { get; set; }
 		private Vector2 MinVelocity { get; set; }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,22 +14,30 @@ namespace AnimpafGE.Graphics
 		public Texture2D Texture { get; set; }
 		public UInt32[] Pixels { get; private set; }
 		public UInt32[,] Pixels2D { get; set; }
-		private int Width, Height;
+		private int Width, Height, PixelSize;
 
-		public TextureCanvas(GraphicsDevice graphicsDevice, int width, int height, Color? color = null)
+		public TextureCanvas(GraphicsDevice graphicsDevice, int pixelSize, int width, int height, Color? color = null)
 		{
 			Width = width;
 			Height = height;
+			PixelSize = pixelSize;
 
 			Texture = new Texture2D(graphicsDevice, width, height);
 			Pixels = new uint[width * height];
 			Pixels2D = new uint[width, height];
 
-			color ??= Color.Black;
-			uint colorPackedValue = color.Value.PackedValue;
-
-			for(int i = 0; i < Pixels.Length; i++)
-				Pixels[i] = colorPackedValue;
+			if(color is null)
+			{
+				Random rnd = new();
+				for(int i = 0; i < Pixels.Length; i++)
+					Pixels[i] = new Color(150, 150, rnd.Next(230, 256)).PackedValue;
+			}
+			else
+			{
+				uint colorPackedValue = color.Value.PackedValue;
+				for(int i = 0; i < Pixels.Length; i++)
+					Pixels[i] = colorPackedValue;
+			}
 
 			PixelsToPixels2D();
 
@@ -81,7 +90,20 @@ namespace AnimpafGE.Graphics
 
 		public void DrawRectangle(Rectangle rectangle, Color? color = null)
 		{
+			try
+			{
+				color ??= Color.Black;
+				var colorRect = new Color[rectangle.Width * rectangle.Height];
+				for(int i = 0; i < colorRect.Length; i++)
+					colorRect[i] = (Color)color;
 
+				Texture.SetData(0, rectangle, colorRect, 0, rectangle.Width * rectangle.Height);
+			}
+			catch(Exception e)
+			{
+				Trace.WriteLine(e.Message);
+				throw;
+			}
 		}
 	}
 }
