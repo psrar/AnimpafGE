@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using BIT;
+using AnimpafGE.Physics;
 using Microsoft.Xna.Framework.Input;
 using System.Diagnostics;
 
@@ -11,7 +11,7 @@ namespace AnimpafGE.ECS.Components
 	/// Компонент, задающий расположение и масштаб объекта на сцене.
 	/// Принадлежит каждому объекту по умолчанию.
 	/// </summary>
-	class Transform : Component
+	public class Transform : Component
 	{
 		/// <summary>Расположение объекта на сцене</summary>
 		public Vector2 Position { get; set; } = Vector2.Zero;
@@ -107,15 +107,8 @@ namespace AnimpafGE.ECS.Components
 	/// </summary>
 	class RigidBody : Component
 	{
-		enum RigidType
-		{
-			/// <summary>К статическим объектам не применяется никакая сила</summary>
-			Static = 0,
-			/// <summary>Динамические объекты перемещаются свободно под действием внешних сил или кода</summary>
-			Dynamic = 1
-		}
-
-		public bool UseGravity { get; set; }
+		public RigidType RigidType { get; set; } = RigidType.Dynamic;
+		public bool UseGravity { get; set; } = true;
 		Vector2 Gravity = new Vector2(0, 9800 / 2);
 
 		public Vector2 Velocity { get; set; }

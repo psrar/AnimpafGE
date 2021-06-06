@@ -9,7 +9,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace AnimpafGE.Graphics
 {
-	class TextureCanvas
+	public class TextureCanvas
 	{
 		public Texture2D Texture { get; set; }
 		public UInt32[] Pixels { get; private set; }

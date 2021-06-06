@@ -8,7 +8,7 @@ using AnimpafGE.ECS.Components;
 
 namespace AnimpafGE.ECS
 {
-	class Entity
+	public class Entity
 	{
 		public Scene ParentScene { get; set; }
 		public string Name { get; set; }
@@ -19,21 +19,29 @@ namespace AnimpafGE.ECS
 		{
 			ParentScene = scene;
 			Name = this.GetHashCode().ToString();
-			Transform = AddComponent<Transform>();
 
-			scene.Objects.Add(this);
+			if(GetType() != typeof(PixelPerfect.PEntity))
+			{
+				Transform = AddComponent<Transform>();
+				scene.Objects.Add(this);
+			}
 		}
 		public Entity(Scene scene, Vector2 position)
 		{
 			ParentScene = scene;
 			Name = this.GetHashCode().ToString();
-			Transform = (Transform)AddComponent<Transform>().SetPosition(position);
+
+			if(GetType() != typeof(PixelPerfect.PEntity))
+			{
+				Transform = AddComponent<Transform>();
+				scene.Objects.Add(this);
+			}
 		}
 
 		/// <summary>
 		/// Обработчик компонентов этого объекта
 		/// </summary>
-		public void Process()
+		public virtual void Process()
 		{
 			foreach(Component component in Components)
 				component.Process();
@@ -45,7 +53,7 @@ namespace AnimpafGE.ECS
 		/// <param name="component"></param>
 		public T AddComponent<T>() where T : Component, new()
 		{
-			T component = new ();
+			T component = new();
 			component.Entity = this;
 			component.Init();
 
@@ -73,7 +81,7 @@ namespace AnimpafGE.ECS
 			if(complist.Any())
 				return complist[0];
 			else
-				throw new Exception("Попытка найти несуществующий или неприкрепленный компонент " + typeof(T) + " для объекта " + Name);
+				return null;
 			//foreach(Component component in Components)
 			//	if(component is T t)
 			//	{

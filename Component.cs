@@ -7,11 +7,11 @@ using Microsoft.Xna.Framework;
 
 namespace AnimpafGE.ECS
 {
-	abstract class Component
+	public abstract class Component
 	{
 		public Entity Entity { get; set; }
 		public string Name { get; set; }
-		bool Enabled { get; set; } = true;
+		public bool Enabled { get; set; } = true;
 
 		public Component()
 		{
