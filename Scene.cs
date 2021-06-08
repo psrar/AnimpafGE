@@ -11,6 +11,7 @@ namespace AnimpafGE.ECS
 		public ContentManager Content { get; set; }
 
 		public GameTime GameTime { get; set; }
+		static public float DeltaTime { get; set; }
 		public int UpdateFrame { get; set; }
 		public int RenderFrame { get; set; }
 
@@ -42,8 +43,8 @@ namespace AnimpafGE.ECS
 		public virtual void Process(GameTime gameTime)
 		{
 			UpdateFrame++;
-
 			GameTime = gameTime;
+			DeltaTime = gameTime.ElapsedGameTime.Milliseconds / 1000f;
 		}
 
 		public virtual void Render(GameTime gameTime)

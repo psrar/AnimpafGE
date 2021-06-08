@@ -81,9 +81,9 @@ namespace AnimpafGE.PixelPerfect
 
 		public override void Process()
 		{
-			PPosition = Transform.PixelPosition * Entity.Transform.S + halfS;
 			if(Enabled)
 			{
+				PPosition = Transform.PixelPosition * Entity.Transform.S + halfS;
 				Batch.Draw(Pixel,                           // Texture
 					PPosition,                              // Position
 					null,                                   // Source rectangle
@@ -105,20 +105,43 @@ namespace AnimpafGE.PixelPerfect
 
 	public class PRigidBody : Component
 	{
-		public Vector2 Velocity { get; set; }
-		public bool UseGravity { get; set; } = true;
-		public Vector2 Gravity = new Vector2(0, 9800 / 10);
+		static public Vector2 Gravity = new Vector2(0, 9800 * 2);
 
-		static float deltaTime = 0;
+		new PEntity Entity { get; set; }
+
+		public Vector2 Velocity { get; set; }
+		public Vector2 Acceleration { get; set; }
+		public float Inertia { get; set; } = 1.05f;
+		public float Friction { get; set; } = 2;
+		public bool UseGravity { get; set; } = false;
+
+		public override void Init()
+		{
+			Entity = (PEntity)base.Entity;
+		}
 
 		public override void Process()
 		{
-			deltaTime = Entity.ParentScene.GameTime.ElapsedGameTime.Milliseconds / 1000f;
+			float delta = Scene.DeltaTime;
 			if(UseGravity)
-				Velocity += Gravity * deltaTime;
+				Velocity += Gravity * delta;
 
-			(Entity as PEntity).Transform.Position += Velocity * deltaTime;
+			Velocity /= Friction;
+
+			Velocity += Acceleration * delta;
+			if(Acceleration != Vector2.Zero)
+				Acceleration /= Inertia;
+
+			if(Entity.ParentScene.RenderFrame % 10 == 0)
+			{
+				if(Vector2.Distance(Acceleration, Vector2.Zero) < 4)
+					Acceleration = Vector2.Zero;
+				if(Vector2.Distance(Velocity, Vector2.Zero) < 4)
+					Velocity = Vector2.Zero;
+			}
+
 			Velocity = Vector2.Clamp(Velocity, Vector2.One * -1960, Vector2.One * 1960);
+			Entity.Transform.Position += Velocity * delta;
 		}
 	}
 
@@ -129,7 +152,7 @@ namespace AnimpafGE.PixelPerfect
 		int Height { get; set; }
 
 		public TextureCanvas Background { get; protected set; }
-		public List<PEntity> Pixels { get; set; } = new ();
+		public List<PEntity> Pixels { get; set; } = new();
 
 		public PScene(Game game, string name = null) : base(game)
 		{
