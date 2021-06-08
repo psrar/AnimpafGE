@@ -29,6 +29,7 @@ namespace AnimpafGE.PixelPerfect
 			Transform = AddComponent<PTransform>();
 			Transform.Position = position;
 			Transform.S = size;
+			Transform.Init();
 			AddComponent<PRenderer>().Init();
 			GetComponent<PRenderer>().Enabled = isVisible;
 		}
@@ -43,11 +44,19 @@ namespace AnimpafGE.PixelPerfect
 	{
 		public Vector2 Position { get; set; } = Vector2.Zero;
 		public Vector2 PixelPosition { get; set; } = Vector2.Zero;
+		public Vector2 PPosition;
 		public int S { get; set; } = 20;
+
+		Vector2 halfS;
+
+		public override void Init()
+		{
+			halfS = Vector2.One / 2 * S;
+		}
 
 		public override void Process()
 		{
-			PixelPosition = new Vector2((int)Position.X / S, (int)Position.Y / S);
+			PPosition = Vector2.Floor(Position / S) * S + halfS;
 		}
 	}
 
@@ -57,12 +66,10 @@ namespace AnimpafGE.PixelPerfect
 		static SpriteBatch Batch { get; set; }
 
 		PTransform Transform;
-		Vector2 halfS;
 
 		new PEntity Entity { get; set; }
 		public Color Color { get; set; } = Color.White;
 
-		Vector2 PPosition;
 		Vector2 Origin;
 
 		int Layer { get; set; } = 0;
@@ -75,7 +82,6 @@ namespace AnimpafGE.PixelPerfect
 			Batch = Entity.ParentScene.spriteBatch;
 
 			Transform = Entity.Transform;
-			halfS = Vector2.One / 2 * Transform.S;
 			Origin = new Vector2(0.5f);
 		}
 
@@ -83,9 +89,8 @@ namespace AnimpafGE.PixelPerfect
 		{
 			if(Enabled)
 			{
-				PPosition = Transform.PixelPosition * Entity.Transform.S + halfS;
 				Batch.Draw(Pixel,                           // Texture
-					PPosition,                              // Position
+					Transform.PPosition,                    // Position
 					null,                                   // Source rectangle
 					Color,                                  // Color
 					0,                                      // Rotation
@@ -153,6 +158,11 @@ namespace AnimpafGE.PixelPerfect
 
 		public TextureCanvas Background { get; protected set; }
 		public List<PEntity> Pixels { get; set; } = new();
+		public Dictionary<int, PEntity> EID = new Dictionary<int, PEntity>();
+		private int LastID = 0;
+
+		public List<int>[] VertSect;
+		public List<int>[] HoriSect;
 
 		public PScene(Game game, string name = null) : base(game)
 		{
@@ -169,7 +179,6 @@ namespace AnimpafGE.PixelPerfect
 
 		public override void LoadContent()
 		{
-
 		}
 
 		public override void Process(GameTime gameTime)
@@ -192,8 +201,10 @@ namespace AnimpafGE.PixelPerfect
 
 		public PEntity AddPixel(int size, Vector2 position, bool isVisible = true)
 		{
-			Pixels.Add(new PEntity(this, size, position, isVisible));
-			return Pixels.Last();
+			var newEntity = new PEntity(this, size, position, isVisible);
+			EID.Add(LastID++, newEntity);
+			Pixels.Add(newEntity);
+			return newEntity;
 		}
 
 		public virtual void InitBackground(Color? color = null)
