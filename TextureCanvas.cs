@@ -28,7 +28,7 @@ namespace AnimpafGE.Graphics
 
 			if(color is null)
 			{
-				Random rnd = new();
+				Random rnd = new Random();
 				for(int i = 0; i < Pixels.Length; i++)
 					Pixels[i] = new Color(150, 150, rnd.Next(230, 256)).PackedValue;
 			}
@@ -78,7 +78,7 @@ namespace AnimpafGE.Graphics
 				throw new ArgumentOutOfRangeException("Drawn pixel was out of TextureCanvas");
 			else
 			{
-				color ??= Color.Black;
+				color = color is null ? Color.Black : color;
 				Texture.SetData(0, new Rectangle(x, y, 1, 1), new Color[] { (Color)color }, 0, 1);
 			}
 		}
@@ -92,7 +92,7 @@ namespace AnimpafGE.Graphics
 		{
 			try
 			{
-				color ??= Color.Black;
+				color = color is null ? Color.Black : color;
 				var colorRect = new Color[rectangle.Width * rectangle.Height];
 				for(int i = 0; i < colorRect.Length; i++)
 					colorRect[i] = (Color)color;

@@ -90,7 +90,7 @@ namespace AnimpafGE.ECS
 
 		public void InitPixelMap()
 		{
-			Background = new(Core.Graphics.GraphicsDevice, 20, Core.Graphics.PreferredBackBufferWidth,
+			Background = new TextureCanvas(Core.Graphics.GraphicsDevice, 20, Core.Graphics.PreferredBackBufferWidth,
 				Core.Graphics.PreferredBackBufferHeight, Color.BlanchedAlmond);
 		}
 	}

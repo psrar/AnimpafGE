@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace AnimpafGE
 {
-	static class Core
+	static public class Core
 	{
 		static public GraphicsDeviceManager Graphics = null;
 	}

@@ -10,6 +10,7 @@ namespace AnimpafGE.ECS
 	public abstract class Component
 	{
 		public Entity Entity { get; set; }
+		public Scene ParentScene { get; set; }
 		public string Name { get; set; }
 		public bool Enabled { get; set; } = true;
 

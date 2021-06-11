@@ -53,7 +53,7 @@ namespace AnimpafGE.ECS.Components
 	/// <summary>
 	/// Компонент, отвечающий за отрисовку спрайта на сцене.
 	/// </summary>
-	class SpriteRenderer : Component
+	public class SpriteRenderer : Component
 	{
 		public Texture2D Sprite { get; set; }
 		SpriteBatch Batch { get; set; }
@@ -65,7 +65,7 @@ namespace AnimpafGE.ECS.Components
 
 		public override void Init()
 		{
-			Batch = Entity.ParentScene.spriteBatch;
+			Batch = ParentScene.spriteBatch;
 			if(Sprite != null)
 			{
 				TopLeft = new Vector2(Sprite.Bounds.Size.X * Entity.Transform.Scaling.X / 2,
@@ -97,7 +97,7 @@ namespace AnimpafGE.ECS.Components
 
 		public void SetRandomColor()
 		{
-			Random rnd = new();
+			Random rnd = new Random();
 			Color = new Color(rnd.Next(256), rnd.Next(256), rnd.Next(256));
 		}
 	}
@@ -105,7 +105,7 @@ namespace AnimpafGE.ECS.Components
 	/// <summary>
 	/// Компонент, отвечающий за физику объекта
 	/// </summary>
-	class RigidBody : Component
+	public class RigidBody : Component
 	{
 		public RigidType RigidType { get; set; } = RigidType.Dynamic;
 		public bool UseGravity { get; set; } = true;
@@ -119,7 +119,7 @@ namespace AnimpafGE.ECS.Components
 
 		public override void Process()
 		{
-			deltaTime = Entity.ParentScene.GameTime.ElapsedGameTime.Milliseconds / 1000f;
+			deltaTime = ParentScene.GameTime.ElapsedGameTime.Milliseconds / 1000f;
 			if(UseGravity)
 				Velocity += Gravity * deltaTime;
 
@@ -127,7 +127,7 @@ namespace AnimpafGE.ECS.Components
 		}
 	}
 
-	class BoxCollider : Component
+	public class BoxCollider : Component
 	{
 		Rectangle Collider { get; set; }
 

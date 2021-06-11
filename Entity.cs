@@ -17,8 +17,8 @@ namespace AnimpafGE.ECS
 
 		public Entity(Scene scene)
 		{
-			ParentScene = scene;
 			Name = this.GetHashCode().ToString();
+			ParentScene = scene;
 
 			if(GetType() != typeof(PixelPerfect.PEntity))
 			{
@@ -53,8 +53,9 @@ namespace AnimpafGE.ECS
 		/// <param name="component"></param>
 		public T AddComponent<T>() where T : Component, new()
 		{
-			T component = new();
+			T component = new T();
 			component.Entity = this;
+			component.ParentScene = ParentScene;
 			component.Init();
 
 			if(!Components.OfType<T>().Any())
@@ -82,12 +83,6 @@ namespace AnimpafGE.ECS
 				return complist[0];
 			else
 				return null;
-			//foreach(Component component in Components)
-			//	if(component is T t)
-			//	{
-			//		Trace.WriteLine($"Component {component.GetType()} found.");
-			//		return t;
-			//	}
 		}
 	}
 }

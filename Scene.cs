@@ -31,7 +31,7 @@ namespace AnimpafGE.ECS
 
 		public virtual void Initialize()
 		{
-			spriteBatch = new(Core.Graphics.GraphicsDevice);
+			spriteBatch = new SpriteBatch(Core.Graphics.GraphicsDevice);
 
 			minCoord = Vector2.Zero;
 			maxCoord = new Vector2(ParentGame.Window.ClientBounds.Width,

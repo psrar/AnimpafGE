@@ -44,7 +44,6 @@ namespace AnimpafGE.PixelPerfect
 	{
 		public Vector2 Position { get; set; } = Vector2.Zero;
 		public Vector2 PixelPosition { get; set; } = Vector2.Zero;
-		public Vector2 PPosition;
 		public int S { get; set; } = 20;
 
 		Vector2 halfS;
@@ -56,7 +55,7 @@ namespace AnimpafGE.PixelPerfect
 
 		public override void Process()
 		{
-			PPosition = Vector2.Floor(Position / S) * S + halfS;
+			PixelPosition = Vector2.Floor(Position / S) * S + halfS;
 		}
 	}
 
@@ -79,7 +78,7 @@ namespace AnimpafGE.PixelPerfect
 		public override void Init()
 		{
 			Entity = (PEntity)base.Entity;
-			Batch = Entity.ParentScene.spriteBatch;
+			Batch = ParentScene.spriteBatch;
 
 			Transform = Entity.Transform;
 			Origin = new Vector2(0.5f);
@@ -90,7 +89,7 @@ namespace AnimpafGE.PixelPerfect
 			if(Enabled)
 			{
 				Batch.Draw(Pixel,                           // Texture
-					Transform.PPosition,                    // Position
+					Transform.PixelPosition,                    // Position
 					null,                                   // Source rectangle
 					Color,                                  // Color
 					0,                                      // Rotation
@@ -103,7 +102,7 @@ namespace AnimpafGE.PixelPerfect
 
 		public void SetRandomColor()
 		{
-			Random rnd = new();
+			Random rnd = new Random();
 			Color = new Color(rnd.Next(256), rnd.Next(256), rnd.Next(256));
 		}
 	}
@@ -113,6 +112,8 @@ namespace AnimpafGE.PixelPerfect
 		static public Vector2 Gravity = new Vector2(0, 9800 * 2);
 
 		new PEntity Entity { get; set; }
+		PTransform Transform;
+		PScene PScene { get; set; }
 
 		public Vector2 Velocity { get; set; }
 		public Vector2 Acceleration { get; set; }
@@ -123,11 +124,14 @@ namespace AnimpafGE.PixelPerfect
 		public override void Init()
 		{
 			Entity = (PEntity)base.Entity;
+			Transform = Entity.Transform;
+			PScene = (PScene)ParentScene;
 		}
 
 		public override void Process()
 		{
 			float delta = Scene.DeltaTime;
+
 			if(UseGravity)
 				Velocity += Gravity * delta;
 
@@ -137,7 +141,12 @@ namespace AnimpafGE.PixelPerfect
 			if(Acceleration != Vector2.Zero)
 				Acceleration /= Inertia;
 
-			if(Entity.ParentScene.RenderFrame % 10 == 0)
+			if(Velocity.Y > 0 && PScene.PhysicsMap[(int)(Transform.PixelPosition.X * (Transform.PixelPosition.Y + 1))] == 1)
+			{
+				Velocity *= Vector2.UnitX;
+			}
+
+			if(ParentScene.RenderFrame % 10 == 0)
 			{
 				if(Vector2.Distance(Acceleration, Vector2.Zero) < 4)
 					Acceleration = Vector2.Zero;
@@ -147,6 +156,8 @@ namespace AnimpafGE.PixelPerfect
 
 			Velocity = Vector2.Clamp(Velocity, Vector2.One * -1960, Vector2.One * 1960);
 			Entity.Transform.Position += Velocity * delta;
+			PScene.PhysicsMap[(int)(Transform.PixelPosition.X * Transform.PixelPosition.Y)]
+				= 1;
 		}
 	}
 
@@ -157,17 +168,21 @@ namespace AnimpafGE.PixelPerfect
 		int Height { get; set; }
 
 		public TextureCanvas Background { get; protected set; }
-		public List<PEntity> Pixels { get; set; } = new();
+		public List<PEntity> Pixels { get; set; } = new List<PEntity>();
 		public Dictionary<int, PEntity> EID = new Dictionary<int, PEntity>();
 		private int LastID = 0;
 
-		public List<int>[] VertSect;
-		public List<int>[] HoriSect;
+		public int[] PhysicsMap;
 
-		public PScene(Game game, string name = null) : base(game)
+		public PScene(Game game, int width, int height, string name = null) : base(game)
 		{
 			Name = name ?? "SimpleScene";
 			ParentGame.IsMouseVisible = true;
+
+			Width = width;
+			Height = height;
+
+			PhysicsMap = new int[Width * Height];
 
 			InitBackground();
 		}
@@ -209,7 +224,7 @@ namespace AnimpafGE.PixelPerfect
 
 		public virtual void InitBackground(Color? color = null)
 		{
-			Background = new(Core.Graphics.GraphicsDevice, 20, Core.Graphics.PreferredBackBufferWidth,
+			Background = new TextureCanvas(Core.Graphics.GraphicsDevice, 20, Core.Graphics.PreferredBackBufferWidth,
 				Core.Graphics.PreferredBackBufferHeight, color);
 		}
 	}
