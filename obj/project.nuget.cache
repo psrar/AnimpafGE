@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "RN8X9HcyaV8TkCXL5v39/bThVv8wr4dkLi1v9aE0dHmEMyyohNPa4r4cet8c1V4UOXDmGQiOoc+lRr3dRIDmuA==",
+  "dgSpecHash": "Sd+1b6HDBTY0FPZzv6+iF/NxKUsOqg462UY7qIfPa8oXYSA9w7lP3i4KYmpTB4IqZX5eStXfLQptGbUaL2C+6w==",
   "success": true,
-  "projectFilePath": "C:\\Users\\pavel\\Desktop\\BIT\\AGE\\AGE.csproj",
+  "projectFilePath": "C:\\Users\\pavel\\Desktop\\AGE\\AGE.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\pavel\\.nuget\\packages\\monogame.framework.desktopgl\\3.8.0.1641\\monogame.framework.desktopgl.3.8.0.1641.nupkg.sha512"
   ],

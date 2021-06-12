@@ -16,6 +16,7 @@ namespace AnimpafGE.PixelPerfect
 	{
 		public PScene PScene { get; set; }
 		public new PTransform Transform { get; set; }
+		public int Index { get; set; }
 
 		public PEntity(Scene scene) : base(scene)
 		{
@@ -28,15 +29,26 @@ namespace AnimpafGE.PixelPerfect
 			PScene = (PScene)scene;
 			Transform = AddComponent<PTransform>();
 			Transform.Position = position;
-			Transform.S = size;
 			Transform.Init();
 			AddComponent<PRenderer>().Init();
+			GetComponent<PRenderer>().Enabled = isVisible;
+		}
+		public PEntity(Scene scene, int size, Vector2 position, Color color, bool isVisible = true) : base(scene)
+		{
+			PScene = (PScene)scene;
+			Transform = AddComponent<PTransform>();
+			Transform.Position = position;
+			Transform.Init();
+			AddComponent<PRenderer>().Init();
+			GetComponent<PRenderer>().Color = color;
 			GetComponent<PRenderer>().Enabled = isVisible;
 		}
 
 		public override void Process()
 		{
 			base.Process();
+
+			Index = (int)(Transform.IndexPosition.X + PScene.VirtualWidth * Transform.IndexPosition.Y);
 		}
 	}
 
@@ -44,18 +56,21 @@ namespace AnimpafGE.PixelPerfect
 	{
 		public Vector2 Position { get; set; } = Vector2.Zero;
 		public Vector2 PixelPosition { get; set; } = Vector2.Zero;
-		public int S { get; set; } = 20;
+		public Vector2 IndexPosition = Vector2.Zero;
+		public int S { get; set; }
 
 		Vector2 halfS;
 
 		public override void Init()
 		{
+			S = ((PScene)ParentScene).PixelSize;
 			halfS = Vector2.One / 2 * S;
 		}
 
 		public override void Process()
 		{
 			PixelPosition = Vector2.Floor(Position / S) * S + halfS;
+			IndexPosition = (PixelPosition - halfS) / S;
 		}
 	}
 
@@ -89,7 +104,7 @@ namespace AnimpafGE.PixelPerfect
 			if(Enabled)
 			{
 				Batch.Draw(Pixel,                           // Texture
-					Transform.PixelPosition,                    // Position
+					Transform.PixelPosition,                // Position
 					null,                                   // Source rectangle
 					Color,                                  // Color
 					0,                                      // Rotation
@@ -120,69 +135,162 @@ namespace AnimpafGE.PixelPerfect
 		public float Inertia { get; set; } = 1.05f;
 		public float Friction { get; set; } = 2;
 		public bool UseGravity { get; set; } = false;
+		public bool isStatic { get; set; } = false;
+
+		Vector2 clampMin;
+		Vector2 clampMax;
+		Vector2 solvedMin;
+		Vector2 solvedMax;
 
 		public override void Init()
 		{
 			Entity = (PEntity)base.Entity;
 			Transform = Entity.Transform;
 			PScene = (PScene)ParentScene;
+
+			clampMin = Vector2.One * PScene.PixelSize;
+			clampMax = PScene.maxCoord - Vector2.One * PScene.PixelSize * 2;
 		}
 
 		public override void Process()
 		{
-			float delta = Scene.DeltaTime;
-
-			if(UseGravity)
-				Velocity += Gravity * delta;
-
-			Velocity /= Friction;
-
-			Velocity += Acceleration * delta;
-			if(Acceleration != Vector2.Zero)
-				Acceleration /= Inertia;
-
-			if(Velocity.Y > 0 && PScene.PhysicsMap[(int)(Transform.PixelPosition.X * (Transform.PixelPosition.Y + 1))] == 1)
+			if(!isStatic)
 			{
-				Velocity *= Vector2.UnitX;
-			}
+				float delta = Scene.DeltaTime;
 
-			if(ParentScene.RenderFrame % 10 == 0)
-			{
-				if(Vector2.Distance(Acceleration, Vector2.Zero) < 4)
-					Acceleration = Vector2.Zero;
-				if(Vector2.Distance(Velocity, Vector2.Zero) < 4)
-					Velocity = Vector2.Zero;
-			}
+				if(UseGravity)
+					Velocity += Gravity * delta;
 
-			Velocity = Vector2.Clamp(Velocity, Vector2.One * -1960, Vector2.One * 1960);
-			Entity.Transform.Position += Velocity * delta;
-			PScene.PhysicsMap[(int)(Transform.PixelPosition.X * Transform.PixelPosition.Y)]
-				= 1;
+				Velocity /= Friction;
+
+				Velocity += Acceleration * delta;
+				if(Acceleration != Vector2.Zero)
+					Acceleration /= Inertia;
+
+				if(ParentScene.RenderFrame % 10 == 0)
+				{
+					if(Vector2.Distance(Acceleration, Vector2.Zero) < 4)
+						Acceleration = Vector2.Zero;
+					if(Vector2.Distance(Velocity, Vector2.Zero) < 4)
+						Velocity = Vector2.Zero;
+				}
+
+				if(Velocity != Vector2.Zero)
+				{
+					PEntity pEntity = null;
+					int posX = (int)Transform.IndexPosition.X;
+					int posY = (int)Transform.IndexPosition.Y;
+
+					//if(Velocity.Y != 0)
+					//{
+					//	pEntity = PScene.GetPixel(posX, posY + 1);
+					//	if(pEntity != null && Velocity.Y > 0)
+					//		Velocity *= Vector2.UnitX;
+					//	else
+					//		pEntity = PScene.GetPixel(posX, posY - 1);
+					//	if(pEntity != null && Velocity.Y < 0)
+					//		Velocity *= Vector2.UnitX;
+					//}
+					//if(Velocity.X != 0)
+					//{
+					//	pEntity = PScene.GetPixel(posX + 1, posY);
+					//	if(pEntity != null && Velocity.X > 0)
+					//		Velocity *= Vector2.UnitY;
+					//	else
+					//		pEntity = PScene.GetPixel(posX - 1, posY);
+					//	if(pEntity != null && Velocity.X < 0)
+					//		Velocity *= Vector2.UnitY;
+					//}		
+					solvedMin = clampMin;
+					solvedMax = clampMax;
+
+					if(Velocity.Y != 0)
+					{
+						pEntity = PScene.GetPixel(posX, posY + 1);
+						if(pEntity != null && Velocity.Y > 0)
+							solvedMax = new Vector2(clampMax.X, Transform.Position.Y);
+						else
+							pEntity = PScene.GetPixel(posX, posY - 1);
+						if(pEntity != null && Velocity.Y < 0)
+							solvedMin = new Vector2(clampMin.X, Transform.Position.Y);
+					}
+					if(Velocity.X != 0)
+					{
+						pEntity = PScene.GetPixel(posX + 1, posY);
+						if(pEntity != null && Velocity.X > 0)
+							solvedMax = new Vector2(Transform.Position.X, solvedMax.Y);
+						else
+							pEntity = PScene.GetPixel(posX - 1, posY);
+						if(pEntity != null && Velocity.X < 0)
+							solvedMin = new Vector2(Transform.Position.X, solvedMin.Y);
+					}
+
+					if(false)
+					{
+						float Angle = MathF.Atan2(Velocity.Y, Velocity.X);
+						if(Angle > 0 && Angle < MathHelper.PiOver2)
+						{
+							pEntity = PScene.GetPixel(posX + 1, posY + 1);
+							if(pEntity != null)
+								Velocity = Vector2.Zero;
+						}
+						else if(Angle > MathHelper.PiOver2 && Angle < MathHelper.Pi)
+						{
+							pEntity = PScene.GetPixel(posX - 1, posY + 1);
+							if(pEntity != null)
+								Velocity = Vector2.Zero;
+						}
+						else if(Angle > MathHelper.Pi && Angle < 3 * MathHelper.PiOver2)
+						{
+							pEntity = PScene.GetPixel(posX - 1, posY - 1);
+							if(pEntity != null)
+								Velocity = Vector2.Zero;
+						}
+						else if(Angle < 0)
+						{
+							pEntity = PScene.GetPixel(posX + 1, posY - 1);
+							if(pEntity != null)
+								Velocity = Vector2.Zero;
+						}
+					}
+				}
+
+				Velocity = Vector2.Clamp(Velocity, Vector2.One * -1960, Vector2.One * 1960);
+				Transform.Position =
+				Vector2.Clamp(Transform.Position + Velocity * delta, solvedMin, solvedMax);
+			}
 		}
 	}
 
 	public class PScene : Scene
 	{
-		int PixelSize { get; set; }
-		int Width { get; set; }
-		int Height { get; set; }
+		public int PixelSize { get; private set; }
+		public int Width { get; private set; }
+		public int Height { get; private set; }
+		public int Size { get; private set; }
+		public int VirtualWidth { get; private set; }
+		public int VirtualHeight { get; private set; }
+		public int VirtualSize { get; private set; }
 
 		public TextureCanvas Background { get; protected set; }
 		public List<PEntity> Pixels { get; set; } = new List<PEntity>();
-		public Dictionary<int, PEntity> EID = new Dictionary<int, PEntity>();
-		private int LastID = 0;
 
-		public int[] PhysicsMap;
+		public PEntity[] PhysicsMap;
 
-		public PScene(Game game, int width, int height, string name = null) : base(game)
+		public PScene(Game game, int pixelSize, int width, int height, string name = null) : base(game)
 		{
 			Name = name ?? "SimpleScene";
 			ParentGame.IsMouseVisible = true;
 
+			PixelSize = pixelSize;
 			Width = width;
 			Height = height;
+			Size = width * height;
+			VirtualWidth = width / pixelSize;
+			VirtualHeight = height / pixelSize;
+			VirtualSize = VirtualWidth * VirtualHeight;
 
-			PhysicsMap = new int[Width * Height];
+			PhysicsMap = new PEntity[VirtualSize];
 
 			InitBackground();
 		}
@@ -190,6 +298,27 @@ namespace AnimpafGE.PixelPerfect
 		public override void Initialize()
 		{
 			base.Initialize();
+
+			for(int x = 0; x < VirtualWidth; x++)
+			{
+				PEntity border = AddPixel(new Vector2(x * PixelSize, Height), Color.Red);
+				border.AddComponent<PRigidBody>().isStatic = true;
+			}
+			for(int x = 0; x < VirtualWidth; x++)
+			{
+				PEntity border = AddPixel(new Vector2(x * PixelSize, 0), Color.Red);
+				border.AddComponent<PRigidBody>().isStatic = true;
+			}
+			for(int y = 0; y < VirtualHeight; y++)
+			{
+				PEntity border = AddPixel(new Vector2(Width, y * PixelSize), Color.Red);
+				border.AddComponent<PRigidBody>().isStatic = true;
+			}
+			for(int y = 0; y < VirtualHeight; y++)
+			{
+				PEntity border = AddPixel(new Vector2(0, y * PixelSize), Color.Red);
+				border.AddComponent<PRigidBody>().isStatic = true;
+			}
 		}
 
 		public override void LoadContent()
@@ -199,6 +328,14 @@ namespace AnimpafGE.PixelPerfect
 		public override void Process(GameTime gameTime)
 		{
 			base.Process(gameTime);
+
+			for(int i = 0; i < PhysicsMap.Length; i++)
+				PhysicsMap[i] = null;
+
+			foreach(PEntity pEntity in Pixels)
+			{
+				PhysicsMap[pEntity.Index] = pEntity;
+			}
 		}
 
 		public override void Render(GameTime gameTime)
@@ -214,10 +351,9 @@ namespace AnimpafGE.PixelPerfect
 			Trace.WriteLine("Ms: " + (DateTime.Now.Millisecond - time));
 		}
 
-		public PEntity AddPixel(int size, Vector2 position, bool isVisible = true)
+		public PEntity AddPixel(Vector2 position, Color color, bool isVisible = true)
 		{
-			var newEntity = new PEntity(this, size, position, isVisible);
-			EID.Add(LastID++, newEntity);
+			PEntity newEntity = new PEntity(this, PixelSize, position, color, isVisible);
 			Pixels.Add(newEntity);
 			return newEntity;
 		}
@@ -226,6 +362,11 @@ namespace AnimpafGE.PixelPerfect
 		{
 			Background = new TextureCanvas(Core.Graphics.GraphicsDevice, 20, Core.Graphics.PreferredBackBufferWidth,
 				Core.Graphics.PreferredBackBufferHeight, color);
+		}
+
+		public PEntity GetPixel(int x, int y)
+		{
+			return PhysicsMap[x + y * VirtualWidth];
 		}
 	}
 }

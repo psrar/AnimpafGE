@@ -1,0 +1,9 @@
+C:\Users\pavel\Desktop\AGE\bin\Debug\netstandard2.1\AGE.deps.json
+C:\Users\pavel\Desktop\AGE\bin\Debug\netstandard2.1\AGE.dll
+C:\Users\pavel\Desktop\AGE\bin\Debug\netstandard2.1\AGE.pdb
+C:\Users\pavel\Desktop\AGE\obj\Debug\netstandard2.1\AGE.AssemblyInfoInputs.cache
+C:\Users\pavel\Desktop\AGE\obj\Debug\netstandard2.1\AGE.AssemblyInfo.cs
+C:\Users\pavel\Desktop\AGE\obj\Debug\netstandard2.1\AGE.csproj.CoreCompileInputs.cache
+C:\Users\pavel\Desktop\AGE\obj\Debug\netstandard2.1\AGE.dll
+C:\Users\pavel\Desktop\AGE\obj\Debug\netstandard2.1\AGE.pdb
+C:\Users\pavel\Desktop\AGE\obj\Debug\netstandard2.1\AGE.csprojAssemblyReference.cache
