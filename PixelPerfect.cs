@@ -139,8 +139,6 @@ namespace AnimpafGE.PixelPerfect
 
 		Vector2 clampMin;
 		Vector2 clampMax;
-		Vector2 solvedMin;
-		Vector2 solvedMax;
 
 		public override void Init()
 		{
@@ -154,6 +152,9 @@ namespace AnimpafGE.PixelPerfect
 
 		public override void Process()
 		{
+			int posX = (int)Transform.IndexPosition.X;
+			int posY = (int)Transform.IndexPosition.Y;
+
 			if(!isStatic)
 			{
 				float delta = Scene.DeltaTime;
@@ -175,89 +176,52 @@ namespace AnimpafGE.PixelPerfect
 						Velocity = Vector2.Zero;
 				}
 
-				solvedMin = clampMin;
-				solvedMax = clampMax;
 				if(Velocity != Vector2.Zero)
 				{
-					PEntity pEntity = null;
-					int posX = (int)Transform.IndexPosition.X;
-					int posY = (int)Transform.IndexPosition.Y;
-
-					//if(Velocity.Y != 0)
-					//{
-					//	pEntity = PScene.GetPixel(posX, posY + 1);
-					//	if(pEntity != null && Velocity.Y > 0)
-					//		Velocity *= Vector2.UnitX;
-					//	else
-					//		pEntity = PScene.GetPixel(posX, posY - 1);
-					//	if(pEntity != null && Velocity.Y < 0)
-					//		Velocity *= Vector2.UnitX;
-					//}
-					//if(Velocity.X != 0)
-					//{
-					//	pEntity = PScene.GetPixel(posX + 1, posY);
-					//	if(pEntity != null && Velocity.X > 0)
-					//		Velocity *= Vector2.UnitY;
-					//	else
-					//		pEntity = PScene.GetPixel(posX - 1, posY);
-					//	if(pEntity != null && Velocity.X < 0)
-					//		Velocity *= Vector2.UnitY;
-					//}		
-
 					if(Velocity.Y != 0)
-					{
-						pEntity = PScene.GetPixel(posX, posY + 1);
-						if(pEntity != null && Velocity.Y > 0)
-							solvedMax = new Vector2(clampMax.X, Transform.Position.Y);
+						if(PScene.GetPixelState(posX, posY + 1) != 0 && Velocity.Y > 0)
+							Velocity *= Vector2.UnitX;
 						else
-							pEntity = PScene.GetPixel(posX, posY - 1);
-						if(pEntity != null && Velocity.Y < 0)
-							solvedMin = new Vector2(clampMin.X, Transform.Position.Y);
-					}
-					if(Velocity.X != 0)
-					{
-						pEntity = PScene.GetPixel(posX + 1, posY);
-						if(pEntity != null && Velocity.X > 0)
-							solvedMax = new Vector2(Transform.Position.X, solvedMax.Y);
-						else
-							pEntity = PScene.GetPixel(posX - 1, posY);
-						if(pEntity != null && Velocity.X < 0)
-							solvedMin = new Vector2(Transform.Position.X, solvedMin.Y);
-					}
+							if(PScene.GetPixelState(posX, posY - 1) != 0 && Velocity.Y < 0)
+							Velocity *= Vector2.UnitX;
 
-					if(false)
-					{
-						float Angle = MathF.Atan2(Velocity.Y, Velocity.X);
-						if(Angle > 0 && Angle < MathHelper.PiOver2)
-						{
-							pEntity = PScene.GetPixel(posX + 1, posY + 1);
-							if(pEntity != null)
-								Velocity = Vector2.Zero;
-						}
-						else if(Angle > MathHelper.PiOver2 && Angle < MathHelper.Pi)
-						{
-							pEntity = PScene.GetPixel(posX - 1, posY + 1);
-							if(pEntity != null)
-								Velocity = Vector2.Zero;
-						}
-						else if(Angle > MathHelper.Pi && Angle < 3 * MathHelper.PiOver2)
-						{
-							pEntity = PScene.GetPixel(posX - 1, posY - 1);
-							if(pEntity != null)
-								Velocity = Vector2.Zero;
-						}
-						else if(Angle < 0)
-						{
-							pEntity = PScene.GetPixel(posX + 1, posY - 1);
-							if(pEntity != null)
-								Velocity = Vector2.Zero;
-						}
-					}
+					if(Velocity.X != 0)
+						if(PScene.GetPixelState(posX + 1, posY) != 0 && Velocity.X > 0)
+							Velocity *= Vector2.UnitY;
+						else
+							if(PScene.GetPixelState(posX - 1, posY) != 0 && Velocity.X < 0)
+								Velocity *= Vector2.UnitY;
+
+					//if(false)
+					//{
+					//	float Angle = MathF.Atan2(Velocity.Y, Velocity.X);
+					//	if(Angle > 0 && Angle < MathHelper.PiOver2)
+					//	{
+					//		if(PScene.GetPixelState(posX + 1, posY + 1) != 0)
+					//			Velocity = Vector2.Zero;
+					//	}
+					//	else if(Angle > MathHelper.PiOver2 && Angle < MathHelper.Pi)
+					//	{
+					//		if(PScene.GetPixelState(posX - 1, posY + 1) != 0)
+					//			Velocity = Vector2.Zero;
+					//	}
+					//	else if(Angle > MathHelper.Pi && Angle < 3 * MathHelper.PiOver2)
+					//	{
+					//		if(PScene.GetPixelState(posX - 1, posY - 1) != 0)
+					//			Velocity = Vector2.Zero;
+					//	}
+					//	else if(Angle < 0)
+					//	{
+					//		if(PScene.GetPixelState(posX + 1, posY - 1) != 0)
+					//			Velocity = Vector2.Zero;
+					//	}
+					//}
 				}
 
 				Velocity = Vector2.Clamp(Velocity, Vector2.One * -1960, Vector2.One * 1960);
 				Transform.Position =
-				Vector2.Clamp(Transform.Position + Velocity * delta, solvedMin, solvedMax);
+				Vector2.Clamp(Transform.Position + Velocity * delta, clampMin, clampMax);
+				PScene.SetPixelState(Transform.Position, 2);
 			}
 		}
 	}
@@ -276,6 +240,8 @@ namespace AnimpafGE.PixelPerfect
 		public List<PEntity> Pixels { get; set; } = new List<PEntity>();
 
 		public PEntity[] PhysicsMap;
+		public int[] StateMap;
+
 
 		public PScene(Game game, int pixelSize, int width, int height, string name = null) : base(game)
 		{
@@ -291,7 +257,7 @@ namespace AnimpafGE.PixelPerfect
 			VirtualSize = VirtualWidth * VirtualHeight;
 
 			PhysicsMap = new PEntity[VirtualSize];
-
+			StateMap = new int[VirtualSize];
 			InitBackground();
 		}
 
@@ -330,11 +296,15 @@ namespace AnimpafGE.PixelPerfect
 			base.Process(gameTime);
 
 			for(int i = 0; i < PhysicsMap.Length; i++)
+			{
 				PhysicsMap[i] = null;
+				StateMap[i] = 0;
+			}
 
 			foreach(PEntity pEntity in Pixels)
 			{
 				PhysicsMap[pEntity.Index] = pEntity;
+				SetPixelState(pEntity.Index, 1);
 			}
 		}
 
@@ -364,9 +334,14 @@ namespace AnimpafGE.PixelPerfect
 				Core.Graphics.PreferredBackBufferHeight, color);
 		}
 
-		public PEntity GetPixel(int x, int y)
-		{
-			return PhysicsMap[x + y * VirtualWidth];
-		}
+		public PEntity GetPixel(int x, int y) => PhysicsMap[x + y * VirtualWidth];
+
+		public int WorldPositionToIndex(Vector2 position) => (int)(position.X / PixelSize + VirtualWidth * (int)(position.Y / PixelSize));
+
+		public int SetPixelState(int x, int y, int value) => StateMap[x + y * VirtualWidth] = value;
+		public int SetPixelState(int index, int value) => StateMap[index] = value;
+		public int SetPixelState(Vector2 position, int value) => StateMap[WorldPositionToIndex(position)] = value;
+		public int GetPixelState(int x, int y) => StateMap[x + y * VirtualWidth];
+		public int GetPixelState(int index) => StateMap[index];
 	}
 }
