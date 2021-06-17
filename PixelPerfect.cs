@@ -175,6 +175,8 @@ namespace AnimpafGE.PixelPerfect
 						Velocity = Vector2.Zero;
 				}
 
+				solvedMin = clampMin;
+				solvedMax = clampMax;
 				if(Velocity != Vector2.Zero)
 				{
 					PEntity pEntity = null;
@@ -201,8 +203,6 @@ namespace AnimpafGE.PixelPerfect
 					//	if(pEntity != null && Velocity.X < 0)
 					//		Velocity *= Vector2.UnitY;
 					//}		
-					solvedMin = clampMin;
-					solvedMax = clampMax;
 
 					if(Velocity.Y != 0)
 					{
