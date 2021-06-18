@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
+using AnimpafGE.Input;
 
 namespace AnimpafGE.ECS
 {
@@ -42,6 +43,8 @@ namespace AnimpafGE.ECS
 
 		public virtual void Process(GameTime gameTime)
 		{
+			InputProcessor.Process();
+
 			UpdateFrame++;
 			GameTime = gameTime;
 			DeltaTime = gameTime.ElapsedGameTime.Milliseconds / 1000f;

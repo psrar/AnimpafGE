@@ -20,7 +20,7 @@ namespace AnimpafGE.ECS
 			Name = this.GetHashCode().ToString();
 			ParentScene = scene;
 
-			if(GetType() != typeof(PixelPerfect.PEntity))
+			if(GetType() != typeof(AnimpafGE.PixelPerfect.ECS.PEntity))
 			{
 				Transform = AddComponent<Transform>();
 				scene.Objects.Add(this);
@@ -31,7 +31,7 @@ namespace AnimpafGE.ECS
 			ParentScene = scene;
 			Name = this.GetHashCode().ToString();
 
-			if(GetType() != typeof(PixelPerfect.PEntity))
+			if(GetType() != typeof(AnimpafGE.PixelPerfect.ECS.PEntity))
 			{
 				Transform = AddComponent<Transform>();
 				scene.Objects.Add(this);
