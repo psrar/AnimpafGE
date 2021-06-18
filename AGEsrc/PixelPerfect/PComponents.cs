@@ -85,7 +85,7 @@ namespace AnimpafGE.PixelPerfect.Components
 		public Vector2 Velocity { get; set; } = Vector2.Zero;
 		public Vector2 Acceleration { get; set; } = Vector2.Zero;
 		public float AccelerationSave { get; set; } = 0.95f;
-		public float VelocitySave { get; set; } = 0.1f;
+		public float VelocitySave { get; set; } = 0.95f;
 		public bool UseGravity { get; set; } = false;
 		public bool isStatic { get; set; } = false;
 
@@ -177,6 +177,12 @@ namespace AnimpafGE.PixelPerfect.Components
 				if(Acceleration == Vector2.Zero)
 					Velocity *= VelocitySave;
 			}
+		}
+
+		public void AddForce(Vector2 force)
+		{
+			if(!isStatic)
+				Velocity += force;
 		}
 	}
 }

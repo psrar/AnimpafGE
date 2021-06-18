@@ -12,12 +12,14 @@ namespace AnimpafGE.Input
 
 		public delegate void ButtonHandler(Keys key);
 		static public event ButtonHandler ButtonClicked;
+		static public event ButtonHandler ButtonHeld;
 
 		static public void Process()
 		{
 			foreach(Button button in TrackedButtons)
 				if(Keyboard.GetState().IsKeyDown(button.Key))
 				{
+					ButtonHeld(button.Key);
 					if(!button.Processed)
 					{
 						button.Processed = true;
@@ -36,17 +38,21 @@ namespace AnimpafGE.Input
 			public Button(Keys trackedKey) => Key = trackedKey;
 		}
 
-		static public bool TrackButton(Keys key)
+		static public void TrackButton(params Keys[] keys)
 		{
-			foreach(Button button in TrackedButtons)
-				if(button.Key == key)
-				{
-					Trace.WriteLine("Попытка отследить кнопку, которая уже отслеживается. Метод TrackButton прерван.");
-					return false;
-				}
-
-			TrackedButtons.Add(new Button(key));
-			return true;
+			foreach(Keys key in keys)
+			{
+				bool flag = false;
+				foreach(Button button in TrackedButtons)
+					if(button.Key == key)
+					{
+						Trace.WriteLine($"Попытка отследить кнопку {key}, которая уже отслеживается.");
+						flag = true;
+						break;
+					}
+				if(!flag)
+					TrackedButtons.Add(new Button(key));
+			}
 		}
 	}
 }
