@@ -10,6 +10,12 @@ namespace AnimpafGE
 			Random rnd = new Random();
 			return new Color(rnd.Next(256), rnd.Next(256), rnd.Next(256));
 		}
+		static public Color GetRandomColor(Color baseColor)
+		{
+			Random rnd = new Random();
+			int rndInt = rnd.Next(20);
+			return new Color(baseColor.R + rndInt, baseColor.G + rndInt, baseColor.B + rndInt);
+		}
 
 		/// <summary>
 		/// Min and max are inclusive int vectors.

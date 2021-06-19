@@ -76,7 +76,7 @@ namespace AnimpafGE.PixelPerfect.Components
 
 	public class PRigidBody : Component
 	{
-		static public Vector2 Gravity = new Vector2(0, 9800 * 2);
+		static public Vector2 Gravity = new Vector2(0, 9800 * 4);
 
 		new PEntity Entity { get; set; }
 		PTransform Transform;

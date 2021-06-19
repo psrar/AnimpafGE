@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Text;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Input.Touch;
+using Microsoft.Xna.Framework;
 using System.Diagnostics;
 
 namespace AnimpafGE.Input
@@ -11,11 +13,17 @@ namespace AnimpafGE.Input
 		static List<Button> TrackedButtons = new List<Button>();
 
 		public delegate void ButtonHandler(Keys key);
+		public delegate void TouchHandler(Vector2 touchPosition);
 		static public event ButtonHandler ButtonClicked;
 		static public event ButtonHandler ButtonHeld;
+		static public event TouchHandler TouchHeld;
 
 		static public void Process()
 		{
+			TouchCollection touches = TouchPanel.GetState();
+			if(touches.Count > 0)
+				TouchHeld(touches[0].Position);
+
 			foreach(Button button in TrackedButtons)
 				if(Keyboard.GetState().IsKeyDown(button.Key))
 				{

@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input.Touch;
 using System.Collections.Generic;
 using AnimpafGE.Input;
 
@@ -37,6 +38,13 @@ namespace AnimpafGE.ECS
 			minCoord = Vector2.Zero;
 			maxCoord = new Vector2(ParentGame.Window.ClientBounds.Width,
 				ParentGame.Window.ClientBounds.Height);
+
+
+			if(TouchPanel.GetState().IsConnected)
+			{
+				minCoord = Vector2.Zero;
+				 maxCoord = new Vector2(Core.Graphics.PreferredBackBufferWidth, Core.Graphics.PreferredBackBufferHeight);
+			}
 		}
 
 		public abstract void LoadContent();
