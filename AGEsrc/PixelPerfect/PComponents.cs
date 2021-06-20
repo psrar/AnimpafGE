@@ -142,31 +142,6 @@ namespace AnimpafGE.PixelPerfect.Components
 						else
 							if(PScene.GetPixelState(posX - 1, posY) != 0 && Velocity.X < 0)
 							Velocity *= Vector2.UnitY;
-
-					//if(false)
-					//{
-					//	float Angle = MathF.Atan2(Velocity.Y, Velocity.X);
-					//	if(Angle > 0 && Angle < MathHelper.PiOver2)
-					//	{
-					//		if(PScene.GetPixelState(posX + 1, posY + 1) != 0)
-					//			Velocity = Vector2.Zero;
-					//	}
-					//	else if(Angle > MathHelper.PiOver2 && Angle < MathHelper.Pi)
-					//	{
-					//		if(PScene.GetPixelState(posX - 1, posY + 1) != 0)
-					//			Velocity = Vector2.Zero;
-					//	}
-					//	else if(Angle > MathHelper.Pi && Angle < 3 * MathHelper.PiOver2)
-					//	{
-					//		if(PScene.GetPixelState(posX - 1, posY - 1) != 0)
-					//			Velocity = Vector2.Zero;
-					//	}
-					//	else if(Angle < 0)
-					//	{
-					//		if(PScene.GetPixelState(posX + 1, posY - 1) != 0)
-					//			Velocity = Vector2.Zero;
-					//	}
-					//}
 				}
 
 				Velocity = Vector2.Clamp(Velocity, Vector2.One * -1960, Vector2.One * 1960);
@@ -177,6 +152,54 @@ namespace AnimpafGE.PixelPerfect.Components
 				if(Acceleration == Vector2.Zero)
 					Velocity *= VelocitySave;
 			}
+		}
+
+		public Vector2 DrawPathBresenham(int x, int y, int x2, int y2)
+		{
+			int w = x2 - x;
+			int h = y2 - y;
+			int dx1 = 0, dy1 = 0, dx2 = 0, dy2 = 0;
+			if(w < 0) dx1 = -1;
+			else if(w > 0) dx1 = 1;
+
+			if(h < 0) dy1 = -1;
+			else if(h > 0) dy1 = 1;
+
+			dx2 = dx1;
+
+			int longest = Math.Abs(w);
+			int shortest = Math.Abs(h);
+			if(!(longest > shortest))
+			{
+				longest = Math.Abs(h);
+				shortest = Math.Abs(w);
+				if(h < 0) dy2 = -1; else if(h > 0) dy2 = 1;
+				dx2 = 0;
+			}
+			int numerator = longest >> 1;
+			for(int i = 0; i <= longest; i++)
+			{
+				numerator += shortest;
+				if(!(numerator < longest))
+				{
+					numerator -= longest;
+					x += dx1;
+					y += dy1;
+
+					if(PScene.GetPixelState(x, y) != 0)
+						return new Vector2(x - dx1, y - dy1);
+				}
+				else
+				{
+					x += dx2;
+					y += dy2;
+
+					if(PScene.GetPixelState(x, y) != 0)
+						return new Vector2(x - dx2, y - dy2);
+				}
+			}
+
+			return new Vector2(x2, y2);
 		}
 
 		public void AddForce(Vector2 force)
