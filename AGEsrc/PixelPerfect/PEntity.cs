@@ -40,6 +40,7 @@ namespace AnimpafGE.PixelPerfect.ECS
 		{
 			base.Process();
 
+			Transform.CalculateIndex();
 			Index = (int)(Transform.IndexPosition.X + PScene.VirtualWidth * Transform.IndexPosition.Y);
 		}
 	}
