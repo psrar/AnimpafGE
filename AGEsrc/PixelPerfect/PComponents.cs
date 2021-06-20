@@ -106,6 +106,11 @@ namespace AnimpafGE.PixelPerfect.Components
 		{
 			int posX = (int)Transform.IndexPosition.X;
 			int posY = (int)Transform.IndexPosition.Y;
+			if(isStatic)
+				PScene.SetPixelState(posX, posY, 10);
+
+			Vector2 ExpectedPosition = Vector2.Zero;
+			Vector2 PathResult = Vector2.Zero;
 
 			if(!isStatic)
 			{
@@ -129,6 +134,7 @@ namespace AnimpafGE.PixelPerfect.Components
 
 				if(Velocity != Vector2.Zero)
 				{
+					Velocity = Vector2.Clamp(Velocity, Vector2.One * -1960, Vector2.One * 1960);
 					if(Velocity.Y != 0)
 						if(PScene.GetPixelState(posX, posY + 1) != 0 && Velocity.Y > 0)
 							Velocity *= Vector2.UnitX;
@@ -142,11 +148,21 @@ namespace AnimpafGE.PixelPerfect.Components
 						else
 							if(PScene.GetPixelState(posX - 1, posY) != 0 && Velocity.X < 0)
 							Velocity *= Vector2.UnitY;
+					if(Velocity != Vector2.Zero)
+					{
+						ExpectedPosition = Transform.Position + Velocity * delta;
+						PathResult = DrawPathBresenham(posX, posY,
+							(int)ExpectedPosition.X / PScene.PixelSize,
+							(int)ExpectedPosition.Y / PScene.PixelSize);
+						if(PathResult == Vector2.Zero)
+							Transform.Position = ExpectedPosition;
+						else
+							Transform.Position = PathResult * PScene.PixelSize;
+					}
+					else
+						Transform.Position = Vector2.Clamp(Transform.Position + Velocity * delta, clampMin, clampMax);
 				}
 
-				Velocity = Vector2.Clamp(Velocity, Vector2.One * -1960, Vector2.One * 1960);
-				Transform.Position =
-				Vector2.Clamp(Transform.Position + Velocity * delta, clampMin, clampMax);
 				PScene.SetPixelState(Transform.Position, 2);
 
 				if(Acceleration == Vector2.Zero)
@@ -156,6 +172,9 @@ namespace AnimpafGE.PixelPerfect.Components
 
 		public Vector2 DrawPathBresenham(int x, int y, int x2, int y2)
 		{
+			if(x == x2 && y == y2)
+				return Vector2.Zero;
+
 			int w = x2 - x;
 			int h = y2 - y;
 			int dx1 = 0, dy1 = 0, dx2 = 0, dy2 = 0;
@@ -199,7 +218,7 @@ namespace AnimpafGE.PixelPerfect.Components
 				}
 			}
 
-			return new Vector2(x2, y2);
+			return Vector2.Zero;
 		}
 
 		public void AddForce(Vector2 force)
