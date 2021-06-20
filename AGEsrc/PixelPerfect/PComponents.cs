@@ -3,6 +3,7 @@ using AnimpafGE.PixelPerfect.ECS;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
+using static System.Diagnostics.Trace;
 
 namespace AnimpafGE.PixelPerfect.Components
 {
@@ -91,8 +92,10 @@ namespace AnimpafGE.PixelPerfect.Components
 		public bool isStatic { get; set; } = false;
 
 		int posX, posY;
-		bool[] clampedSide = new bool[4];
-		//1- up 2- right 3- down 4- left
+		bool[] clampedSide = new bool[8];
+		//0- up 1- right 2- down 3- left 4- topright 5- bottomright 6- bottomleft 7- topleft
+		int posXE, posYE, dx, dy;
+		bool diagonalCollision;
 
 		public override void Init()
 		{
@@ -109,7 +112,6 @@ namespace AnimpafGE.PixelPerfect.Components
 			if(!isStatic)
 			{
 				float delta = Scene.DeltaTime;
-				int posXE, posYE, dx, dy;
 
 				if(UseGravity)
 					Velocity = Vector2.Clamp(Velocity + Gravity * delta, Vector2.One * -20000, Vector2.One * 20000);
@@ -125,39 +127,55 @@ namespace AnimpafGE.PixelPerfect.Components
 						Velocity = Vector2.Zero;
 				}
 
+				diagonalCollision = false;
 				CheckClamping();
-				if(clampedSide[0] && Velocity.Y < 0)
-					Velocity *= Vector2.UnitX;
-				if(clampedSide[1] && Velocity.X > 0)
-					Velocity *= Vector2.UnitY;
-				if(clampedSide[2] && Velocity.Y > 0)
-					Velocity *= Vector2.UnitX;
-				if(clampedSide[3] && Velocity.X < 0)
-					Velocity *= Vector2.UnitY;
 
 				if(Velocity != Vector2.Zero)
 				{
-					Vector2 ExpectedPosition = Transform.Position + Velocity * delta;
-					posXE = (int)ExpectedPosition.X / PScene.PixelSize;
-					posYE = (int)ExpectedPosition.Y / PScene.PixelSize;
-					dx = posXE - posX;
-					dy = posYE - posY;
+					if(clampedSide[0] && Velocity.Y < 0)
+						Velocity *= Vector2.UnitX;
+					if(clampedSide[1] && Velocity.X > 0)
+						Velocity *= Vector2.UnitY;
+					if(clampedSide[2] && Velocity.Y > 0)
+						Velocity *= Vector2.UnitX;
+					if(clampedSide[3] && Velocity.X < 0)
+						Velocity *= Vector2.UnitY;
+					if(clampedSide[4] && Velocity.Y < 0 && Velocity.X > 0)
+						diagonalCollision = true;
+					if(clampedSide[5] && Velocity.Y > 0 && Velocity.X > 0)
+						diagonalCollision = true;
+					if(clampedSide[6] && Velocity.Y > 0 && Velocity.X < 0)
+						diagonalCollision = true;
+					if(clampedSide[7] && Velocity.Y < 0 && Velocity.X < 0)
+						diagonalCollision = true;
 
-					if(!(dy == 0 && dx == 0))
+					if(diagonalCollision)
+						Velocity = Vector2.Zero;
+
+					if(Velocity != Vector2.Zero)
 					{
-						if(Math.Abs(dx) + Math.Abs(dy) < 2)
-							Transform.Position = ExpectedPosition;
-						else
+						Vector2 ExpectedPosition = Transform.Position + Velocity * delta;
+						posXE = (int)ExpectedPosition.X / PScene.PixelSize;
+						posYE = (int)ExpectedPosition.Y / PScene.PixelSize;
+						dx = posXE - posX;
+						dy = posYE - posY;
+
+						if(!(dy == 0 && dx == 0))
 						{
-							Vector2 PathResult = DrawPathBresenham(posX, posY, posXE, posYE);
-							if(PathResult == Vector2.Zero)
+							if(Math.Abs(dx) < 2 && Math.Abs(dy) < 2)
 								Transform.Position = ExpectedPosition;
 							else
-								Transform.Position = PathResult * PScene.PixelSize;
+							{
+								Vector2 PathResult = DrawPathBresenham(posX, posY, posXE, posYE);
+								if(PathResult == Vector2.Zero)
+									Transform.Position = ExpectedPosition;
+								else
+									Transform.Position = PathResult * PScene.PixelSize;
+							}
 						}
+						else
+							Transform.Position = ExpectedPosition;
 					}
-					else
-						Transform.Position = ExpectedPosition;
 
 					PScene.SetPixelState(Transform.Position, 2);
 
@@ -168,17 +186,15 @@ namespace AnimpafGE.PixelPerfect.Components
 
 		public Vector2 DrawPathBresenham(int x, int y, int x2, int y2)
 		{
-			int w = x2 - x;
-			int h = y2 - y;
-			int absW = Math.Abs(w);
-			int absH = Math.Abs(h);
+			int absW = Math.Abs(dx);
+			int absH = Math.Abs(dy);
 
 			int dx1 = 0, dy1 = 0, dx2 = 0, dy2 = 0;
-			if(w < 0) dx1 = -1;
-			else if(w > 0) dx1 = 1;
+			if(dx < 0) dx1 = -1;
+			else if(dx > 0) dx1 = 1;
 
-			if(h < 0) dy1 = -1;
-			else if(h > 0) dy1 = 1;
+			if(dy < 0) dy1 = -1;
+			else if(dy > 0) dy1 = 1;
 
 			int longest;
 			int shortest;
@@ -186,7 +202,7 @@ namespace AnimpafGE.PixelPerfect.Components
 			{
 				longest = absH;
 				shortest = absW;
-				if(h < 0) dy2 = -1; else if(h > 0) dy2 = 1;
+				if(dy < 0) dy2 = -1; else if(dy > 0) dy2 = 1;
 			}
 			else
 			{
@@ -221,18 +237,30 @@ namespace AnimpafGE.PixelPerfect.Components
 
 		public void CheckClamping()
 		{
-			if(PScene.GetPixelState(posX, posY - 1) == 1)
+			if(PScene.GetPixelState(posX, posY - 1) != 0)
 				clampedSide[0] = true;
 			else clampedSide[0] = false;
-			if(PScene.GetPixelState(posX + 1, posY) == 1)
+			if(PScene.GetPixelState(posX + 1, posY) != 0)
 				clampedSide[1] = true;
 			else clampedSide[1] = false;
-			if(PScene.GetPixelState(posX, posY + 1) == 1)
+			if(PScene.GetPixelState(posX, posY + 1) != 0)
 				clampedSide[2] = true;
 			else clampedSide[2] = false;
-			if(PScene.GetPixelState(posX - 1, posY) == 1)
+			if(PScene.GetPixelState(posX - 1, posY) != 0)
 				clampedSide[3] = true;
 			else clampedSide[3] = false;
+			if(PScene.GetPixelState(posX + 1, posY - 1) != 0)
+				clampedSide[4] = true;
+			else clampedSide[4] = false;
+			if(PScene.GetPixelState(posX + 1, posY + 1) != 0)
+				clampedSide[5] = true;
+			else clampedSide[5] = false;
+			if(PScene.GetPixelState(posX - 1, posY + 1) != 0)
+				clampedSide[6] = true;
+			else clampedSide[6] = false;
+			if(PScene.GetPixelState(posX - 1, posY - 1) != 0)
+				clampedSide[7] = true;
+			else clampedSide[7] = false;
 		}
 
 		public void AddForce(Vector2 force)
