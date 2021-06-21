@@ -33,7 +33,7 @@ namespace AnimpafGE.ECS
 
 			if(GetType() != typeof(AnimpafGE.PixelPerfect.ECS.PEntity))
 			{
-				Transform = AddComponent<Transform>();
+				Transform = AddComponent<Transform>().SetPosition(position);
 				scene.Objects.Add(this);
 			}
 		}
@@ -53,9 +53,11 @@ namespace AnimpafGE.ECS
 		/// <param name="component"></param>
 		public T AddComponent<T>() where T : Component, new()
 		{
-			T component = new T();
-			component.Entity = this;
-			component.ParentScene = ParentScene;
+			T component = new T
+			{
+				Entity = this,
+				ParentScene = ParentScene
+			};
 			component.Init();
 
 			if(!Components.OfType<T>().Any())

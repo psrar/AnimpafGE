@@ -51,18 +51,18 @@ namespace AnimpafGE.PixelPerfect.ECS
 			for(int x = 0; x < VirtualWidth; x++)
 			{
 				border = AddPixel(new Vector2(x * PixelSize, Height - PixelSize), Color.Red);
-				border.AddComponent<PRigidBody>().isStatic = true;
+				border.RigidBody.IsStatic = true;
 
 				border = AddPixel(new Vector2(x * PixelSize, 0), Color.Red);
-				border.AddComponent<PRigidBody>().isStatic = true;
+				border.RigidBody.IsStatic = true;
 			}
 			for(int y = 0; y < VirtualHeight; y++)
 			{
 				border = AddPixel(new Vector2(Width - PixelSize, y * PixelSize), Color.Red);
-				border.AddComponent<PRigidBody>().isStatic = true;
+				border.RigidBody.IsStatic = true;
 
 				border = AddPixel(new Vector2(0, y * PixelSize), Color.Red);
-				border.AddComponent<PRigidBody>().isStatic = true;
+				border.RigidBody.IsStatic = true;
 			}
 		}
 
@@ -105,7 +105,7 @@ namespace AnimpafGE.PixelPerfect.ECS
 
 		public PEntity AddPixel(Vector2 position, Color color, bool isVisible = true)
 		{
-			PEntity newEntity = new PEntity(this, PixelSize, position, color, isVisible);
+			PEntity newEntity = new PEntity(this, position, color, isVisible);
 			Pixels.Add(newEntity);
 			return newEntity;
 		}

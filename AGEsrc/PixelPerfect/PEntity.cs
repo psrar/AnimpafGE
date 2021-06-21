@@ -8,29 +8,36 @@ namespace AnimpafGE.PixelPerfect.ECS
 	{
 		public PScene PScene { get; set; }
 		public new PTransform Transform { get; set; }
+		public PRigidBody RigidBody { get; set; }
 		public int Index { get; set; }
 
 		public PEntity(Scene scene) : base(scene)
 		{
 			PScene = (PScene)scene;
 			Transform = AddComponent<PTransform>();
+			Transform.Init();
+			RigidBody = AddComponent<PRigidBody>();
+			RigidBody.Init();
 			AddComponent<PRenderer>().Init();
 		}
-		public PEntity(Scene scene, int size, Vector2 position, bool isVisible = true) : base(scene)
+		public PEntity(Scene scene, Vector2 position, bool isVisible = true) : base(scene)
 		{
 			PScene = (PScene)scene;
 			Transform = AddComponent<PTransform>();
 			Transform.Position = position;
-			Transform.Init();
+			RigidBody = AddComponent<PRigidBody>();
+			RigidBody.Init();
 			AddComponent<PRenderer>().Init();
 			GetComponent<PRenderer>().Enabled = isVisible;
 		}
-		public PEntity(Scene scene, int size, Vector2 position, Color color, bool isVisible = true) : base(scene)
+		public PEntity(Scene scene, Vector2 position, Color color, bool isVisible = true) : base(scene)
 		{
 			PScene = (PScene)scene;
 			Transform = AddComponent<PTransform>();
 			Transform.Position = position;
 			Transform.Init();
+			RigidBody = AddComponent<PRigidBody>();
+			RigidBody.Init();
 			AddComponent<PRenderer>().Init();
 			GetComponent<PRenderer>().Color = color;
 			GetComponent<PRenderer>().Enabled = isVisible;
