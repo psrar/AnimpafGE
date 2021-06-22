@@ -14,9 +14,9 @@ namespace AnimpafGE.Input
 
 		public delegate void ButtonHandler(Keys key);
 		public delegate void TouchHandler(Vector2 touchPosition);
-		static public event ButtonHandler ButtonClicked;
-		static public event ButtonHandler ButtonHeld;
-		static public event TouchHandler TouchHeld;
+		static public event ButtonHandler ButtonClicked = delegate { };
+		static public event ButtonHandler ButtonHeld = delegate { };
+		static public event TouchHandler TouchHeld = delegate { };
 
 		static public void Process()
 		{
@@ -27,12 +27,12 @@ namespace AnimpafGE.Input
 			foreach(Button button in TrackedButtons)
 				if(Keyboard.GetState().IsKeyDown(button.Key))
 				{
-					ButtonHeld(button.Key);
 					if(!button.Processed)
 					{
 						button.Processed = true;
 						ButtonClicked(button.Key);
 					}
+					ButtonHeld(button.Key);
 				}
 				else button.Processed = false;
 		}

@@ -66,20 +66,11 @@ namespace AnimpafGE.PixelPerfect.ECS
 			}
 		}
 
-		public override void LoadContent()
-		{
-		}
+		public override void LoadContent() { }
 
 		public override void Process(GameTime gameTime)
 		{
 			base.Process(gameTime);
-
-		}
-
-		public override void Render(GameTime gameTime)
-		{
-			spriteBatch.Begin(samplerState: SamplerState.PointClamp);
-			spriteBatch.Draw(Background.Texture, Vector2.Zero, Color.White);
 
 			for(int i = 0; i < PhysicsMap.Length; i++)
 			{
@@ -92,6 +83,13 @@ namespace AnimpafGE.PixelPerfect.ECS
 				PhysicsMap[pEntity.Index] = pEntity;
 				SetPixelState(pEntity.Index, 1);
 			}
+		}
+
+		public override void Render(GameTime gameTime)
+		{
+			spriteBatch.Begin(samplerState: SamplerState.PointClamp);
+			spriteBatch.Draw(Background.Texture, Vector2.Zero, Color.White);
+
 			foreach(Entity entity in Objects)
 				entity.Process();
 

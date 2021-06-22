@@ -91,13 +91,14 @@ namespace AnimpafGE.PixelPerfect.Components
 		public bool UseGravity { get; set; } = false;
 		public bool IsStatic { get; set; } = false;
 
-		int posX, posY;
+		int posX, posY, posXE, posYE, dx, dy;
 
-		readonly bool[] clampedSide = new bool[8];
+		bool[] clampedSide = new bool[8];
 		PEntity[] sidePixel = new PEntity[8];
 		//0- up 1- right 2- down 3- left 4- topright 5- bottomright 6- bottomleft 7- topleft
 
-		int posXE, posYE, dx, dy;
+		public delegate void CollisionHandler(PEntity pixelCollided, Entity collider);
+		public event CollisionHandler Collided = delegate { };
 
 		public override void Init()
 		{
@@ -134,24 +135,24 @@ namespace AnimpafGE.PixelPerfect.Components
 					CheckClamping();
 					if(clampedSide[1] && Velocity.X > 0)
 					{
-						PScene.GetPixel(posX + 1, posY).RigidBody.AddForce(Velocity.X, 0);
+						Collided(Entity, PScene.GetPixel(posX + 1, posY).RigidBody.AddForce(Velocity.X, 0));
 						Velocity *= Vector2.UnitY;
 					}
 					else if(clampedSide[3] && Velocity.X < 0)
 					{
-						PScene.GetPixel(posX - 1, posY).RigidBody.AddForce(Velocity.X, 0);
+						Collided(Entity, PScene.GetPixel(posX - 1, posY).RigidBody.AddForce(Velocity.X, 0));
 						Velocity *= Vector2.UnitY;
 					}
 					if(Velocity.Y < 0)
 					{
 						if(clampedSide[0])
 						{
-							PScene.GetPixel(posX, posY - 1).RigidBody.AddForce(0, Velocity.Y);
+							Collided(Entity, PScene.GetPixel(posX, posY - 1).RigidBody.AddForce(0, Velocity.Y));
 							Velocity *= Vector2.UnitX;
 						}
 						else if((clampedSide[4] && Velocity.X > 0) || (clampedSide[7] && Velocity.X < 0))
 						{
-							PScene.GetPixel(posX + Math.Sign(Velocity.X), posY - 1).RigidBody.AddForce(Velocity);
+							Collided(Entity, PScene.GetPixel(posX + Math.Sign(Velocity.X), posY - 1).RigidBody.AddForce(Velocity));
 							Velocity = Vector2.Zero;
 						}
 					}
@@ -159,12 +160,12 @@ namespace AnimpafGE.PixelPerfect.Components
 					{
 						if(clampedSide[2])
 						{
-							PScene.GetPixel(posX, posY + 1).RigidBody.AddForce(0, Velocity.Y);
+							Collided(Entity, PScene.GetPixel(posX, posY + 1).RigidBody.AddForce(0, Velocity.Y));
 							Velocity *= Vector2.UnitX;
 						}
 						else if((clampedSide[5] && Velocity.X > 0) || (clampedSide[6] && Velocity.X < 0))
 						{
-							PScene.GetPixel(posX + Math.Sign(Velocity.X), posY + 1).RigidBody.AddForce(Velocity);
+							Collided(Entity, PScene.GetPixel(posX + Math.Sign(Velocity.X), posY + 1).RigidBody.AddForce(Velocity));
 							Velocity = Vector2.Zero;
 						}
 					}
@@ -251,7 +252,6 @@ namespace AnimpafGE.PixelPerfect.Components
 			}
 			return Vector2.Zero;
 		}
-
 		public void CheckClamping()
 		{
 			sidePixel[0] = PScene.GetPixel(posX, posY - 1);
@@ -266,20 +266,29 @@ namespace AnimpafGE.PixelPerfect.Components
 				clampedSide[i] = !(sidePixel[i] is null);
 		}
 
-		public void AddForce(Vector2 force)
+		public PEntity AddForce(Vector2 force)
 		{
 			if(!IsStatic)
 				Velocity += force;
+			return Entity;
 		}
-		public void AddForce(int x, int y)
+		public PEntity AddForce(int x, int y)
 		{
 			Vector2 force = new Vector2(x, y);
 			if(!IsStatic)
 				Velocity += force;
+			return Entity;
 		}
-		public void AddForce(float x, float y)
+		public PEntity AddForce(float x, float y)
 		{
 			Vector2 force = new Vector2(x, y);
+			if(!IsStatic)
+				Velocity += force;
+			return Entity;
+		}
+
+		public void OnLocalForceAdded(Vector2 force)
+		{
 			if(!IsStatic)
 				Velocity += force;
 		}

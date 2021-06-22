@@ -1,24 +1,27 @@
 ﻿using AnimpafGE.ECS;
 using AnimpafGE.PixelPerfect.Components;
 using Microsoft.Xna.Framework;
+using System.Collections.Generic;
 
 namespace AnimpafGE.PixelPerfect.ECS
 {
 	public class PEntity : Entity
 	{
 		public PScene PScene { get; set; }
+
 		public new PTransform Transform { get; set; }
 		public PRigidBody RigidBody { get; set; }
+		public PComplexEntity ParentComplexObject { get; set; }
+		public PRenderer Renderer { get; set; }
+
 		public int Index { get; set; }
 
 		public PEntity(Scene scene) : base(scene)
 		{
 			PScene = (PScene)scene;
 			Transform = AddComponent<PTransform>();
-			Transform.Init();
 			RigidBody = AddComponent<PRigidBody>();
-			RigidBody.Init();
-			AddComponent<PRenderer>().Init();
+			Renderer = AddComponent<PRenderer>();
 		}
 		public PEntity(Scene scene, Vector2 position, bool isVisible = true) : base(scene)
 		{
@@ -26,21 +29,18 @@ namespace AnimpafGE.PixelPerfect.ECS
 			Transform = AddComponent<PTransform>();
 			Transform.Position = position;
 			RigidBody = AddComponent<PRigidBody>();
-			RigidBody.Init();
-			AddComponent<PRenderer>().Init();
-			GetComponent<PRenderer>().Enabled = isVisible;
+			Renderer = AddComponent<PRenderer>();
+			Renderer.Enabled = isVisible;
 		}
 		public PEntity(Scene scene, Vector2 position, Color color, bool isVisible = true) : base(scene)
 		{
 			PScene = (PScene)scene;
 			Transform = AddComponent<PTransform>();
 			Transform.Position = position;
-			Transform.Init();
 			RigidBody = AddComponent<PRigidBody>();
-			RigidBody.Init();
-			AddComponent<PRenderer>().Init();
-			GetComponent<PRenderer>().Color = color;
-			GetComponent<PRenderer>().Enabled = isVisible;
+			Renderer = AddComponent<PRenderer>();
+			Renderer.Color = color;
+			Renderer.Enabled = isVisible;
 		}
 
 		public override void Process()

@@ -5,22 +5,24 @@ using System.Linq;
 using System.Diagnostics;
 using Microsoft.Xna.Framework;
 using AnimpafGE.ECS.Components;
+using AnimpafGE.PixelPerfect;
+using AnimpafGE.PixelPerfect.ECS;
 
 namespace AnimpafGE.ECS
 {
 	public class Entity
 	{
 		public Scene ParentScene { get; set; }
-		public string Name { get; set; }
+		public string ID { get; set; }
 		public Transform Transform { get; set; }
 		List<Component> Components { get; set; } = new List<Component>();
 
 		public Entity(Scene scene)
 		{
-			Name = this.GetHashCode().ToString();
+			ID = this.GetHashCode().ToString();
 			ParentScene = scene;
 
-			if(GetType() != typeof(AnimpafGE.PixelPerfect.ECS.PEntity))
+			if(GetType() != typeof(PEntity) && GetType() != typeof(PComplexEntity))
 			{
 				Transform = AddComponent<Transform>();
 				scene.Objects.Add(this);
@@ -29,9 +31,9 @@ namespace AnimpafGE.ECS
 		public Entity(Scene scene, Vector2 position)
 		{
 			ParentScene = scene;
-			Name = this.GetHashCode().ToString();
+			ID = this.GetHashCode().ToString();
 
-			if(GetType() != typeof(AnimpafGE.PixelPerfect.ECS.PEntity))
+			if(GetType() != typeof(PEntity) && GetType() != typeof(PComplexEntity))
 			{
 				Transform = AddComponent<Transform>().SetPosition(position);
 				scene.Objects.Add(this);
@@ -68,7 +70,7 @@ namespace AnimpafGE.ECS
 			else
 			{
 				Trace.WriteLine($"Добавление компонента {component} невозможно:\n" +
-			  $"объект {Name} уже имеет данный компонент.");
+			  $"объект {ID} уже имеет данный компонент.");
 				return null;
 			}
 		}
