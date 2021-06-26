@@ -54,6 +54,7 @@ namespace AnimpafGE.PixelPerfect
 				RigidBody.CaptureRigidBody(pixel);
 				pixel.ParentComplexObject = this;
 				CenterPositions();
+				pixel.Renderer.Color = Utilities.GetRandomColor(Color.Red);
 			}
 			return pixels.Last();
 		}
@@ -64,6 +65,7 @@ namespace AnimpafGE.PixelPerfect
 				CapturedPixels.Remove(pixel);
 				RigidBody.ReleaseRigidBody(pixel);
 				pixel.ParentComplexObject = null;
+				pixel.Renderer.Color = Utilities.GetRandomColor(Color.Orchid);
 			}
 		}
 
@@ -196,8 +198,6 @@ namespace AnimpafGE.PixelPerfect
 		{
 			if(collider is PEntity && pixelCollided.ParentComplexObject != (collider as PEntity).ParentComplexObject)
 				ObjectCollided(pixelCollided, collider, side);
-
-			
 
 			switch(side)
 			{

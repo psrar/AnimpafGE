@@ -13,7 +13,7 @@ namespace AnimpafGE
 		static public Color GetRandomColor(Color baseColor)
 		{
 			Random rnd = new Random();
-			int rndInt = rnd.Next(20);
+			int rndInt = rnd.Next(40);
 			return new Color(baseColor.R + rndInt, baseColor.G + rndInt, baseColor.B + rndInt);
 		}
 
