@@ -7,6 +7,11 @@ using Microsoft.Xna.Framework;
 
 namespace AnimpafGE.Physics
 {
+	public static class PhysicalConstants
+	{
+		static public Vector2 Gravity = new Vector2(0, 9800 / 1.6f);
+	}
+
 	public enum RigidType
 	{
 		/// <summary>К статическим объектам не применяется никакая сила</summary>
@@ -14,6 +19,19 @@ namespace AnimpafGE.Physics
 		/// <summary>Динамические объекты перемещаются свободно под действием внешних сил или кода</summary>
 		Dynamic = 1
 	}
+	public enum Side
+	{
+		None = -1,
+		Top = 0,
+		TopRight = 1,
+		Right = 2,
+		BottomRight = 3,
+		Bottom = 4,
+		BottomLeft = 5,
+		Left = 6,
+		TopLeft = 7
+	}
+
 	static public class Physics
 	{
 		public struct Line

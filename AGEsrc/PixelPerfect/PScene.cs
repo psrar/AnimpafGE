@@ -115,13 +115,35 @@ namespace AnimpafGE.PixelPerfect.ECS
 		}
 
 		public PEntity GetPixel(int x, int y) => PhysicsMap[x + y * VirtualWidth];
+		public PEntity GetPixel(int index) => PhysicsMap[index];
+		public PEntity GetPixel(Vector2 position) => PhysicsMap[WorldPositionToIndex(position)];
+		public PEntity SetPixel(int x, int y, PEntity pEntity) => PhysicsMap[x + y * VirtualWidth] = pEntity;
+		public PEntity SetPixel(int index, PEntity pEntity) => PhysicsMap[index] = pEntity;
+		public PEntity SetPixel(Vector2 position, PEntity pEntity) => PhysicsMap[WorldPositionToIndex(position)] = pEntity;
 
-		public int WorldPositionToIndex(Vector2 position) => (int)(position.X / PixelSize + VirtualWidth * (int)(position.Y / PixelSize));
-
+		public int GetPixelState(int x, int y) => StateMap[x + y * VirtualWidth];
+		public int GetPixelState(int index) => StateMap[index];
+		public int GetPixelState(Vector2 position) => StateMap[WorldPositionToIndex(position)];
 		public int SetPixelState(int x, int y, int value) => StateMap[x + y * VirtualWidth] = value;
 		public int SetPixelState(int index, int value) => StateMap[index] = value;
 		public int SetPixelState(Vector2 position, int value) => StateMap[WorldPositionToIndex(position)] = value;
-		public int GetPixelState(int x, int y) => StateMap[x + y * VirtualWidth];
-		public int GetPixelState(int index) => StateMap[index];
+
+		public void MovePixel(Vector2 startPos, Vector2 endPos)
+		{
+			SetPixelState(endPos, GetPixelState(startPos));
+			SetPixelState(startPos, 0);
+			SetPixel(endPos, GetPixel(startPos));
+			SetPixel(startPos, null);
+		}
+		public void MovePixel(int x, int y, Vector2 endPos)
+		{
+			SetPixelState(endPos, GetPixelState(x, y));
+			SetPixelState(x, y, 0);
+			SetPixel(endPos, GetPixel(x, y));
+			SetPixel(x, y, null);
+		}
+
+		public int WorldPositionToIndex(Vector2 position) =>
+			(int)(position.X / PixelSize + VirtualWidth * (int)(position.Y / PixelSize));
 	}
 }

@@ -6,23 +6,28 @@ using System.Linq;
 using System.Diagnostics;
 using AnimpafGE.ECS;
 using AnimpafGE.PixelPerfect.Components;
+using AnimpafGE.Physics;
 
 namespace AnimpafGE.PixelPerfect
 {
 	public class PComplexEntity : Entity
 	{
+		public PScene PScene { get; set; }
+
 		public new PComplexTransform Transform { get; set; }
 		public PComplexRigidBody RigidBody { get; set; }
 		public List<PEntity> CapturedPixels { get; set; } = new List<PEntity>();
 
 		public PComplexEntity(Scene scene) : base(scene)
 		{
+			PScene = (PScene)scene;
 			Transform = AddComponent<PComplexTransform>();
 			RigidBody = AddComponent<PComplexRigidBody>();
 			scene.Objects.Add(this);
 		}
 		public PComplexEntity(Scene scene, params PEntity[] pEntities) : base(scene)
 		{
+			PScene = (PScene)scene;
 			Transform = AddComponent<PComplexTransform>();
 			RigidBody = AddComponent<PComplexRigidBody>();
 			CapturePixel(pEntities);
@@ -31,7 +36,7 @@ namespace AnimpafGE.PixelPerfect
 		}
 		public PComplexEntity(Scene scene, Vector2 position) : base(scene, position)
 		{
-			ParentScene = scene;
+			PScene = (PScene)scene;
 			ID = this.GetHashCode().ToString();
 
 			if(GetType() != typeof(AnimpafGE.PixelPerfect.ECS.PEntity))
@@ -48,8 +53,15 @@ namespace AnimpafGE.PixelPerfect
 				CapturedPixels.Add(pixel);
 				RigidBody.CaptureRigidBody(pixel);
 				pixel.ParentComplexObject = this;
+				CenterPositions();
 			}
 			return pixels.Last();
+		}
+
+		public void CenterPositions()
+		{
+			foreach(PEntity entity in CapturedPixels)
+				entity.Transform.Position = entity.Transform.IndexPosition * PScene.PixelSize;
 		}
 	}
 
@@ -76,12 +88,15 @@ namespace AnimpafGE.PixelPerfect
 	public class PComplexRigidBody : Component
 	{
 		public new PComplexEntity Entity { get; set; }
-		public List<PRigidBody> ChildrenBodies { get; set; } = new List<PRigidBody>();
+		public List<PRigidBody> CapturedRigidBodies { get; set; } = new List<PRigidBody>();
+
+		public Vector2 LocalVelocity { get; set; } = Vector2.Zero;
+		public bool UseGravity { get; set; } = false;
 
 		public delegate void ForceHandler(Vector2 force);
 		public event ForceHandler LocalForceAdded = delegate { };
 
-		public delegate void ObjectCollisionHandler(PEntity pixelCollided, Entity collider);
+		public delegate void ObjectCollisionHandler(PEntity pixelCollided, Entity collider, Side side);
 		public event ObjectCollisionHandler ObjectCollided = delegate { };
 
 		public override void Init()
@@ -91,9 +106,26 @@ namespace AnimpafGE.PixelPerfect
 			foreach(PEntity Child in ((PComplexEntity)Entity).CapturedPixels)
 				if(Child.RigidBody != null)
 				{
-					ChildrenBodies.Add(Child.RigidBody);
+					CapturedRigidBodies.Add(Child.RigidBody);
 					LocalForceAdded += Child.RigidBody.OnLocalForceAdded;
 				}
+		}
+
+		public override void Process()
+		{
+			if(UseGravity)
+				LocalVelocity = Vector2.Clamp(LocalVelocity + PhysicalConstants.Gravity * Scene.DeltaTime, Vector2.One * -20000, Vector2.One * 20000);
+
+			if(ParentScene.RenderFrame % 10 == 0)
+			{
+				if(Vector2.Distance(LocalVelocity, Vector2.Zero) < 10)
+					LocalVelocity = Vector2.Zero;
+			}
+
+			foreach(PRigidBody pBody in CapturedRigidBodies)
+			{
+
+			}
 		}
 
 		public void CaptureRigidBody(PEntity pEntity)
@@ -102,9 +134,10 @@ namespace AnimpafGE.PixelPerfect
 			{
 				if(pEntity.RigidBody != null)
 				{
-					ChildrenBodies.Add(pEntity.RigidBody);
+					CapturedRigidBodies.Add(pEntity.RigidBody);
 					LocalForceAdded += pEntity.RigidBody.OnLocalForceAdded;
 					pEntity.RigidBody.Collided += OnPixelCollided;
+					Entity.CenterPositions();
 				}
 				else
 					Trace.TraceError("У объекта нет компонента PRigidBody");
@@ -129,12 +162,10 @@ namespace AnimpafGE.PixelPerfect
 			LocalForceAdded(force);
 		}
 
-		public override void Process() { }
-
-		public void OnPixelCollided(PEntity pixelCollided, Entity collider)
+		public void OnPixelCollided(PEntity pixelCollided, Entity collider, Side side)
 		{
 			if(collider is PEntity && pixelCollided.ParentComplexObject != (collider as PEntity).ParentComplexObject)
-				ObjectCollided(pixelCollided, collider);
+				ObjectCollided(pixelCollided, collider, side);
 		}
 	}
 }

@@ -3,6 +3,7 @@ using AnimpafGE.PixelPerfect.ECS;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
+using AnimpafGE.Physics;
 using static System.Diagnostics.Trace;
 
 namespace AnimpafGE.PixelPerfect.Components
@@ -78,8 +79,6 @@ namespace AnimpafGE.PixelPerfect.Components
 
 	public class PRigidBody : Component
 	{
-		static public Vector2 Gravity = new Vector2(0, 9800 / 1.6f);
-
 		new PEntity Entity { get; set; }
 		PTransform Transform;
 		PScene PScene { get; set; }
@@ -97,7 +96,7 @@ namespace AnimpafGE.PixelPerfect.Components
 		PEntity[] sidePixel = new PEntity[8];
 		//0- up 1- right 2- down 3- left 4- topright 5- bottomright 6- bottomleft 7- topleft
 
-		public delegate void CollisionHandler(PEntity pixelCollided, Entity collider);
+		public delegate void CollisionHandler(PEntity pixelCollided, Entity collider, Side side = Side.None);
 		public event CollisionHandler Collided = delegate { };
 
 		public override void Init()
@@ -114,20 +113,21 @@ namespace AnimpafGE.PixelPerfect.Components
 
 			if(!IsStatic)
 			{
-				float delta = Scene.DeltaTime;
-
-				if(UseGravity)
-					Velocity = Vector2.Clamp(Velocity + Gravity * delta, Vector2.One * -20000, Vector2.One * 20000);
-
-				if(Acceleration != Vector2.Zero)
-					Velocity = Vector2.Clamp(Velocity + Acceleration, Vector2.One * -20000, Vector2.One * 20000);
-
-				if(ParentScene.RenderFrame % 10 == 0)
+				if(Entity.ParentComplexObject == null)
 				{
-					if(Vector2.Distance(Acceleration, Vector2.Zero) < PScene.PixelSize)
-						Acceleration = Vector2.Zero;
-					if(Vector2.Distance(Velocity, Vector2.Zero) < PScene.PixelSize)
-						Velocity = Vector2.Zero;
+					if(UseGravity)
+						Velocity = Vector2.Clamp(Velocity + PhysicalConstants.Gravity * Scene.DeltaTime, Vector2.One * -20000, Vector2.One * 20000);
+
+					if(Acceleration != Vector2.Zero)
+						Velocity = Vector2.Clamp(Velocity + Acceleration, Vector2.One * -20000, Vector2.One * 20000);
+
+					if(ParentScene.RenderFrame % 10 == 0)
+					{
+						if(Vector2.Distance(Acceleration, Vector2.Zero) < PScene.PixelSize)
+							Acceleration = Vector2.Zero;
+						if(Vector2.Distance(Velocity, Vector2.Zero) < PScene.PixelSize)
+							Velocity = Vector2.Zero;
+					}
 				}
 
 				if(Velocity != Vector2.Zero)
@@ -135,24 +135,29 @@ namespace AnimpafGE.PixelPerfect.Components
 					CheckClamping();
 					if(clampedSide[1] && Velocity.X > 0)
 					{
-						Collided(Entity, PScene.GetPixel(posX + 1, posY).RigidBody.AddForce(Velocity.X, 0));
+						Collided(Entity, PScene.GetPixel(posX + 1, posY).RigidBody.AddForce(Velocity.X, 0), Side.Right);
 						Velocity *= Vector2.UnitY;
 					}
 					else if(clampedSide[3] && Velocity.X < 0)
 					{
-						Collided(Entity, PScene.GetPixel(posX - 1, posY).RigidBody.AddForce(Velocity.X, 0));
+						Collided(Entity, PScene.GetPixel(posX - 1, posY).RigidBody.AddForce(Velocity.X, 0), Side.Left);
 						Velocity *= Vector2.UnitY;
 					}
 					if(Velocity.Y < 0)
 					{
 						if(clampedSide[0])
 						{
-							Collided(Entity, PScene.GetPixel(posX, posY - 1).RigidBody.AddForce(0, Velocity.Y));
+							Collided(Entity, PScene.GetPixel(posX, posY - 1).RigidBody.AddForce(0, Velocity.Y), Side.Top);
 							Velocity *= Vector2.UnitX;
 						}
-						else if((clampedSide[4] && Velocity.X > 0) || (clampedSide[7] && Velocity.X < 0))
+						else if((clampedSide[4] && Velocity.X > 0))
 						{
-							Collided(Entity, PScene.GetPixel(posX + Math.Sign(Velocity.X), posY - 1).RigidBody.AddForce(Velocity));
+							Collided(Entity, PScene.GetPixel(posX + 1, posY - 1).RigidBody.AddForce(Velocity));
+							Velocity = Vector2.Zero;
+						}
+						else if(clampedSide[7] && Velocity.X < 0)
+						{
+							Collided(Entity, PScene.GetPixel(posX - 1, posY - 1).RigidBody.AddForce(Velocity));
 							Velocity = Vector2.Zero;
 						}
 					}
@@ -160,19 +165,24 @@ namespace AnimpafGE.PixelPerfect.Components
 					{
 						if(clampedSide[2])
 						{
-							Collided(Entity, PScene.GetPixel(posX, posY + 1).RigidBody.AddForce(0, Velocity.Y));
+							Collided(Entity, PScene.GetPixel(posX, posY + 1).RigidBody.AddForce(0, Velocity.Y), Side.Bottom);
 							Velocity *= Vector2.UnitX;
 						}
-						else if((clampedSide[5] && Velocity.X > 0) || (clampedSide[6] && Velocity.X < 0))
+						else if(clampedSide[5] && Velocity.X > 0)
 						{
-							Collided(Entity, PScene.GetPixel(posX + Math.Sign(Velocity.X), posY + 1).RigidBody.AddForce(Velocity));
+							Collided(Entity, PScene.GetPixel(posX + 1, posY + 1).RigidBody.AddForce(Velocity));
+							Velocity = Vector2.Zero;
+						}
+						else if(clampedSide[6] && Velocity.X < 0)
+						{
+							Collided(Entity, PScene.GetPixel(posX - 1, posY + 1).RigidBody.AddForce(Velocity));
 							Velocity = Vector2.Zero;
 						}
 					}
 
 					if(Velocity != Vector2.Zero)
 					{
-						Vector2 ExpectedPosition = Transform.Position + Velocity * delta;
+						Vector2 ExpectedPosition = Transform.Position + Velocity * Scene.DeltaTime;
 						posXE = (int)ExpectedPosition.X / PScene.PixelSize;
 						posYE = (int)ExpectedPosition.Y / PScene.PixelSize;
 						dx = posXE - posX;
@@ -197,7 +207,7 @@ namespace AnimpafGE.PixelPerfect.Components
 						Velocity *= VelocitySave;
 					}
 
-					PScene.SetPixelState(Transform.Position, 2);
+					PScene.MovePixel(posX, posY, Transform.Position);
 				}
 			}
 		}
@@ -239,7 +249,22 @@ namespace AnimpafGE.PixelPerfect.Components
 					y += dy1;
 
 					if(PScene.GetPixelState(x, y) != 0)
-						return new Vector2(x - dx1, y - dy1);
+					{
+						if(Entity.ParentComplexObject == null)
+						{
+							Collided(Entity, PScene.GetPixel(x, y));
+							return new Vector2(x - dx1, y - dy1);
+						}
+						else
+						{
+							PEntity collider = PScene.GetPixel(x, y);
+							if(Entity.ParentComplexObject != collider.ParentComplexObject)
+							{
+								Collided(Entity, collider);
+								return new Vector2(x - dx1, y - dy1);
+							}
+						}
+					}
 				}
 				else
 				{
@@ -247,7 +272,22 @@ namespace AnimpafGE.PixelPerfect.Components
 					y += dy2;
 
 					if(PScene.GetPixelState(x, y) != 0)
-						return new Vector2(x - dx2, y - dy2);
+					{
+						if(Entity.ParentComplexObject == null)
+						{
+							Collided(Entity, PScene.GetPixel(x, y));
+							return new Vector2(x - dx2, y - dy2);
+						}
+						else
+						{
+							PEntity collider = PScene.GetPixel(x, y);
+							if(Entity.ParentComplexObject != collider.ParentComplexObject)
+							{
+								Collided(Entity, collider);
+								return new Vector2(x - dx2, y - dy2);
+							}
+						}
+					}
 				}
 			}
 			return Vector2.Zero;
@@ -263,7 +303,8 @@ namespace AnimpafGE.PixelPerfect.Components
 			sidePixel[6] = PScene.GetPixel(posX - 1, posY + 1);
 			sidePixel[7] = PScene.GetPixel(posX - 1, posY - 1);
 			for(int i = 0; i < 8; i++)
-				clampedSide[i] = !(sidePixel[i] is null);
+				clampedSide[i] = !(sidePixel[i] is null ||
+					(Entity.ParentComplexObject != null && sidePixel[i].ParentComplexObject == Entity.ParentComplexObject));
 		}
 
 		public PEntity AddForce(Vector2 force)

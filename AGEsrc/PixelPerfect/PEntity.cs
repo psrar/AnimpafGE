@@ -37,6 +37,7 @@ namespace AnimpafGE.PixelPerfect.ECS
 			PScene = (PScene)scene;
 			Transform = AddComponent<PTransform>();
 			Transform.Position = position;
+			Transform.CalculateIndex();
 			RigidBody = AddComponent<PRigidBody>();
 			Renderer = AddComponent<PRenderer>();
 			Renderer.Color = color;
