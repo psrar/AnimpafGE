@@ -15,7 +15,7 @@ namespace AnimpafGE.PixelPerfect.Components
 		public Vector2 IndexPosition = Vector2.Zero;
 		public int S { get; set; }
 
-		Vector2 halfS;
+		static public Vector2 halfS;
 
 		public override void Init()
 		{
@@ -113,21 +113,24 @@ namespace AnimpafGE.PixelPerfect.Components
 
 			if(!IsStatic)
 			{
-				if(Entity.ParentComplexObject == null)
+				if(Entity.ParentComplexObject == null || Entity.ParentComplexObject.RigidBody == null)
+					ProcessWithoutComplexObject();
+			}
+
+			void ProcessWithoutComplexObject()
+			{
+				if(UseGravity)
+					Velocity = Vector2.Clamp(Velocity + PhysicalConstants.Gravity * Scene.DeltaTime, Vector2.One * -20000, Vector2.One * 20000);
+
+				if(Acceleration != Vector2.Zero)
+					Velocity = Vector2.Clamp(Velocity + Acceleration, Vector2.One * -20000, Vector2.One * 20000);
+
+				if(ParentScene.RenderFrame % 10 == 0)
 				{
-					if(UseGravity)
-						Velocity = Vector2.Clamp(Velocity + PhysicalConstants.Gravity * Scene.DeltaTime, Vector2.One * -20000, Vector2.One * 20000);
-
-					if(Acceleration != Vector2.Zero)
-						Velocity = Vector2.Clamp(Velocity + Acceleration, Vector2.One * -20000, Vector2.One * 20000);
-
-					if(ParentScene.RenderFrame % 10 == 0)
-					{
-						if(Vector2.Distance(Acceleration, Vector2.Zero) < PScene.PixelSize)
-							Acceleration = Vector2.Zero;
-						if(Vector2.Distance(Velocity, Vector2.Zero) < PScene.PixelSize)
-							Velocity = Vector2.Zero;
-					}
+					if(Vector2.Distance(Acceleration, Vector2.Zero) < PScene.PixelSize)
+						Acceleration = Vector2.Zero;
+					if(Vector2.Distance(Velocity, Vector2.Zero) < PScene.PixelSize)
+						Velocity = Vector2.Zero;
 				}
 
 				if(Velocity != Vector2.Zero)
@@ -209,6 +212,66 @@ namespace AnimpafGE.PixelPerfect.Components
 
 					PScene.MovePixel(posX, posY, Transform.Position);
 				}
+			}
+		}
+
+		public void ResolveCollisionsInCO()
+		{
+			PComplexRigidBody complexBody = Entity.ParentComplexObject.RigidBody;
+			Vector2 localVelocity = complexBody.LocalVelocity;
+			if(localVelocity != Vector2.Zero)
+			{
+				CheckClamping();
+				if(clampedSide[1] && localVelocity.X > 0)
+					Collided(Entity, PScene.GetPixel(posX + 1, posY).RigidBody.AddForce(localVelocity.X, 0), Side.Right);
+				else if(clampedSide[3] && localVelocity.X < 0)
+					Collided(Entity, PScene.GetPixel(posX - 1, posY).RigidBody.AddForce(localVelocity.X, 0), Side.Left);
+				if(localVelocity.Y < 0)
+				{
+					if(clampedSide[0])
+						Collided(Entity, PScene.GetPixel(posX, posY - 1).RigidBody.AddForce(0, localVelocity.Y), Side.Top);
+					else if((clampedSide[4] && localVelocity.X > 0))
+						Collided(Entity, PScene.GetPixel(posX + 1, posY - 1).RigidBody.AddForce(localVelocity));
+					else if(clampedSide[7] && localVelocity.X < 0)
+						Collided(Entity, PScene.GetPixel(posX - 1, posY - 1).RigidBody.AddForce(localVelocity));
+				}
+				else if(localVelocity.Y > 0)
+				{
+					if(clampedSide[2])
+						Collided(Entity, PScene.GetPixel(posX, posY + 1).RigidBody.AddForce(0, localVelocity.Y), Side.Bottom);
+					else if(clampedSide[5] && localVelocity.X > 0)
+						Collided(Entity, PScene.GetPixel(posX + 1, posY + 1).RigidBody.AddForce(localVelocity));
+					else if(clampedSide[6] && localVelocity.X < 0)
+						Collided(Entity, PScene.GetPixel(posX - 1, posY + 1).RigidBody.AddForce(localVelocity));
+				}
+
+				if((localVelocity = complexBody.LocalVelocity) != Vector2.Zero)
+				{
+					Vector2 ExpectedPosition = Transform.Position + localVelocity * Scene.DeltaTime;
+					posXE = (int)ExpectedPosition.X / PScene.PixelSize;
+					posYE = (int)ExpectedPosition.Y / PScene.PixelSize;
+					dx = posXE - posX;
+					dy = posYE - posY;
+
+					if(!(dy == 0 && dx == 0))
+					{
+						if(Math.Abs(dx) < 2 && Math.Abs(dy) < 2)
+							Transform.Position = ExpectedPosition;
+						else
+						{
+							Vector2 PathResult = DrawPathBresenham(posX, posY);
+							ExpectedPosition = Transform.Position + localVelocity * Scene.DeltaTime;
+							if(PathResult == Vector2.Zero)
+								Transform.Position = ExpectedPosition;
+							else
+								Transform.Position = PathResult * PScene.PixelSize;
+						}
+					}
+					else
+						Transform.Position = ExpectedPosition;
+				}
+
+				PScene.MovePixel(posX, posY, Transform.Position);
 			}
 		}
 
@@ -330,8 +393,7 @@ namespace AnimpafGE.PixelPerfect.Components
 
 		public void OnLocalForceAdded(Vector2 force)
 		{
-			if(!IsStatic)
-				Velocity += force;
+			ResolveCollisionsInCO();
 		}
 	}
 }

@@ -61,7 +61,7 @@ namespace AnimpafGE.PixelPerfect
 		public void CenterPositions()
 		{
 			foreach(PEntity entity in CapturedPixels)
-				entity.Transform.Position = entity.Transform.IndexPosition * PScene.PixelSize;
+				entity.Transform.Position = entity.Transform.IndexPosition * PScene.PixelSize + PTransform.halfS;
 		}
 	}
 
@@ -91,6 +91,7 @@ namespace AnimpafGE.PixelPerfect
 		public List<PRigidBody> CapturedRigidBodies { get; set; } = new List<PRigidBody>();
 
 		public Vector2 LocalVelocity { get; set; } = Vector2.Zero;
+		public float LocalVelocitySave { get; set; } = 0.95f;
 		public bool UseGravity { get; set; } = false;
 
 		public delegate void ForceHandler(Vector2 force);
@@ -122,10 +123,12 @@ namespace AnimpafGE.PixelPerfect
 					LocalVelocity = Vector2.Zero;
 			}
 
-			foreach(PRigidBody pBody in CapturedRigidBodies)
+			for(int i = 0; i < CapturedRigidBodies.Count; i++)
 			{
-
+				CapturedRigidBodies[i].ResolveCollisionsInCO();
 			}
+
+			LocalVelocity *= LocalVelocitySave;
 		}
 
 		public void CaptureRigidBody(PEntity pEntity)
@@ -137,7 +140,7 @@ namespace AnimpafGE.PixelPerfect
 					CapturedRigidBodies.Add(pEntity.RigidBody);
 					LocalForceAdded += pEntity.RigidBody.OnLocalForceAdded;
 					pEntity.RigidBody.Collided += OnPixelCollided;
-					Entity.CenterPositions();
+					pEntity.RigidBody.Velocity = Vector2.Zero;
 				}
 				else
 					Trace.TraceError("У объекта нет компонента PRigidBody");
@@ -149,23 +152,57 @@ namespace AnimpafGE.PixelPerfect
 
 		public void AddForce(Vector2 force)
 		{
-			LocalForceAdded(force);
+			LocalVelocity += force;
+			//LocalForceAdded(force);
 		}
 		public void AddForce(int x, int y)
 		{
 			Vector2 force = new Vector2(x, y);
-			LocalForceAdded(force);
+			LocalVelocity += force;
+			//LocalForceAdded(force);
 		}
 		public void AddForce(float x, float y)
 		{
 			Vector2 force = new Vector2(x, y);
-			LocalForceAdded(force);
+			LocalVelocity += force;
+			//LocalForceAdded(force);
 		}
 
 		public void OnPixelCollided(PEntity pixelCollided, Entity collider, Side side)
 		{
 			if(collider is PEntity && pixelCollided.ParentComplexObject != (collider as PEntity).ParentComplexObject)
 				ObjectCollided(pixelCollided, collider, side);
+
+			switch(side)
+			{
+				case Side.None:
+					LocalVelocity = Vector2.Zero;
+					break;
+				case Side.Top:
+					LocalVelocity *= Vector2.UnitX;
+					break;
+				case Side.TopRight:
+					LocalVelocity = Vector2.Zero;
+					break;
+				case Side.Right:
+					LocalVelocity *= Vector2.UnitY;
+					break;
+				case Side.BottomRight:
+					LocalVelocity = Vector2.Zero;
+					break;
+				case Side.Bottom:
+					LocalVelocity *= Vector2.UnitX;
+					break;
+				case Side.BottomLeft:
+					LocalVelocity = Vector2.Zero;
+					break;
+				case Side.Left:
+					LocalVelocity *= Vector2.UnitY;
+					break;
+				case Side.TopLeft:
+					LocalVelocity = Vector2.Zero;
+					break;
+			}
 		}
 	}
 }
