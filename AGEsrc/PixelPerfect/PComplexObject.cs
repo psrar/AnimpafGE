@@ -30,7 +30,7 @@ namespace AnimpafGE.PixelPerfect
 			PScene = (PScene)scene;
 			Transform = AddComponent<PComplexTransform>();
 			RigidBody = AddComponent<PComplexRigidBody>();
-			CapturePixel(pEntities);
+			CapturePixels(pEntities);
 
 			scene.Objects.Add(this);
 		}
@@ -46,7 +46,7 @@ namespace AnimpafGE.PixelPerfect
 			}
 		}
 
-		public PEntity CapturePixel(params PEntity[] pixels)
+		public PEntity CapturePixels(params PEntity[] pixels)
 		{
 			foreach(var pixel in pixels)
 			{
@@ -56,6 +56,15 @@ namespace AnimpafGE.PixelPerfect
 				CenterPositions();
 			}
 			return pixels.Last();
+		}
+		public void ReleasePixels(params PEntity[] pixels)
+		{
+			foreach(var pixel in pixels)
+			{
+				CapturedPixels.Remove(pixel);
+				RigidBody.ReleaseRigidBody(pixel);
+				pixel.ParentComplexObject = null;
+			}
 		}
 
 		public void CenterPositions()
@@ -128,6 +137,11 @@ namespace AnimpafGE.PixelPerfect
 				CapturedRigidBodies[i].ResolveCollisionsInCO();
 			}
 
+			for(int i = 0; i < CapturedRigidBodies.Count; i++)
+			{
+				CapturedRigidBodies[i].MoveInCO();
+			}
+
 			LocalVelocity *= LocalVelocitySave;
 		}
 
@@ -143,11 +157,21 @@ namespace AnimpafGE.PixelPerfect
 					pEntity.RigidBody.Velocity = Vector2.Zero;
 				}
 				else
-					Trace.TraceError("У объекта нет компонента PRigidBody");
+					Trace.WriteLine("У объекта нет компонента PRigidBody");
 			}
 			else throw new Exception("Попытка захватить компонент PRigidBody в PComplexRigidBody, " +
 				"пока объект не привязан к объекту PComplexEntity. " +
-				"Сначала используйте метод CapturePixel класса PComplexEntity.");
+				"Сначала используйте метод CapturePixels класса PComplexEntity.");
+		}
+		public void ReleaseRigidBody(PEntity pEntity)
+		{
+			if(pEntity.RigidBody != null)
+			{
+				CapturedRigidBodies.Remove(pEntity.RigidBody);
+				LocalForceAdded -= pEntity.RigidBody.OnLocalForceAdded;
+				pEntity.RigidBody.Collided -= OnPixelCollided;
+				pEntity.RigidBody.Velocity = LocalVelocity;
+			}
 		}
 
 		public void AddForce(Vector2 force)
@@ -172,6 +196,8 @@ namespace AnimpafGE.PixelPerfect
 		{
 			if(collider is PEntity && pixelCollided.ParentComplexObject != (collider as PEntity).ParentComplexObject)
 				ObjectCollided(pixelCollided, collider, side);
+
+			
 
 			switch(side)
 			{

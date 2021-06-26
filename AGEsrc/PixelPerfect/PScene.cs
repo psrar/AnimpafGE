@@ -137,10 +137,12 @@ namespace AnimpafGE.PixelPerfect.ECS
 		}
 		public void MovePixel(int x, int y, Vector2 endPos)
 		{
-			SetPixelState(endPos, GetPixelState(x, y));
+			int r = GetPixelState(x, y);
 			SetPixelState(x, y, 0);
-			SetPixel(endPos, GetPixel(x, y));
+			SetPixelState(endPos, r);
+			PEntity rEntity = GetPixel(x, y);
 			SetPixel(x, y, null);
+			SetPixel(endPos, rEntity);
 		}
 
 		public int WorldPositionToIndex(Vector2 position) =>

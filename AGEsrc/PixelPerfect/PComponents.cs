@@ -87,9 +87,10 @@ namespace AnimpafGE.PixelPerfect.Components
 		public Vector2 Acceleration { get; set; } = Vector2.Zero;
 		public float AccelerationSave { get; set; } = 0.95f;
 		public float VelocitySave { get; set; } = 0.95f;
+		public RigidType Type { get; set; }
+
 		public bool UseGravity { get; set; } = false;
 		public bool IsStatic { get; set; } = false;
-
 		int posX, posY, posXE, posYE, dx, dy;
 
 		bool[] clampedSide = new bool[8];
@@ -127,9 +128,9 @@ namespace AnimpafGE.PixelPerfect.Components
 
 				if(ParentScene.RenderFrame % 10 == 0)
 				{
-					if(Vector2.Distance(Acceleration, Vector2.Zero) < PScene.PixelSize)
+					if(Vector2.Distance(Acceleration, Vector2.Zero) < 3)
 						Acceleration = Vector2.Zero;
-					if(Vector2.Distance(Velocity, Vector2.Zero) < PScene.PixelSize)
+					if(Vector2.Distance(Velocity, Vector2.Zero) < 3)
 						Velocity = Vector2.Zero;
 				}
 
@@ -244,35 +245,49 @@ namespace AnimpafGE.PixelPerfect.Components
 					else if(clampedSide[6] && localVelocity.X < 0)
 						Collided(Entity, PScene.GetPixel(posX - 1, posY + 1).RigidBody.AddForce(localVelocity));
 				}
+				Vector2 ExpectedPosition = Transform.Position + localVelocity * Scene.DeltaTime;
+				posXE = (int)ExpectedPosition.X / PScene.PixelSize;
+				posYE = (int)ExpectedPosition.Y / PScene.PixelSize;
+				dx = posXE - posX;
+				dy = posYE - posY;
 
-				if((localVelocity = complexBody.LocalVelocity) != Vector2.Zero)
+				if(!(dy == 0 && dx == 0) && !(Math.Abs(dx) < 2 && Math.Abs(dy) < 2))
+					DrawPathBresenham(posX, posY);
+			}
+		}
+
+		public void MoveInCO()
+		{
+			PComplexRigidBody complexBody = Entity.ParentComplexObject.RigidBody;
+			Vector2 localVelocity = complexBody.LocalVelocity;
+
+			if((localVelocity = complexBody.LocalVelocity) != Vector2.Zero)
+			{
+				Vector2 ExpectedPosition = Transform.Position + localVelocity * Scene.DeltaTime;
+				posXE = (int)ExpectedPosition.X / PScene.PixelSize;
+				posYE = (int)ExpectedPosition.Y / PScene.PixelSize;
+				dx = posXE - posX;
+				dy = posYE - posY;
+
+				if(!(dy == 0 && dx == 0))
 				{
-					Vector2 ExpectedPosition = Transform.Position + localVelocity * Scene.DeltaTime;
-					posXE = (int)ExpectedPosition.X / PScene.PixelSize;
-					posYE = (int)ExpectedPosition.Y / PScene.PixelSize;
-					dx = posXE - posX;
-					dy = posYE - posY;
-
-					if(!(dy == 0 && dx == 0))
+					if(Math.Abs(dx) < 2 && Math.Abs(dy) < 2)
+						Transform.Position = ExpectedPosition;
+					else
 					{
-						if(Math.Abs(dx) < 2 && Math.Abs(dy) < 2)
+						Vector2 PathResult = DrawPathBresenham(posX, posY);
+						ExpectedPosition = Transform.Position + localVelocity * Scene.DeltaTime;
+						if(PathResult == Vector2.Zero)
 							Transform.Position = ExpectedPosition;
 						else
-						{
-							Vector2 PathResult = DrawPathBresenham(posX, posY);
-							ExpectedPosition = Transform.Position + localVelocity * Scene.DeltaTime;
-							if(PathResult == Vector2.Zero)
-								Transform.Position = ExpectedPosition;
-							else
-								Transform.Position = PathResult * PScene.PixelSize;
-						}
+							Transform.Position = PathResult * PScene.PixelSize;
 					}
-					else
-						Transform.Position = ExpectedPosition;
 				}
-
-				PScene.MovePixel(posX, posY, Transform.Position);
+				else
+					Transform.Position = ExpectedPosition;
 			}
+
+			PScene.MovePixel(posX, posY, Transform.Position);
 		}
 
 		public Vector2 DrawPathBresenham(int x, int y)
@@ -365,9 +380,13 @@ namespace AnimpafGE.PixelPerfect.Components
 			sidePixel[5] = PScene.GetPixel(posX + 1, posY + 1);
 			sidePixel[6] = PScene.GetPixel(posX - 1, posY + 1);
 			sidePixel[7] = PScene.GetPixel(posX - 1, posY - 1);
-			for(int i = 0; i < 8; i++)
-				clampedSide[i] = !(sidePixel[i] is null ||
-					(Entity.ParentComplexObject != null && sidePixel[i].ParentComplexObject == Entity.ParentComplexObject));
+			if(Entity.ParentComplexObject is null)
+				for(int i = 0; i < 8; i++)
+					clampedSide[i] = !(sidePixel[i] is null);
+			else
+				for(int i = 0; i < 8; i++)
+					clampedSide[i] = !(sidePixel[i] is null ||
+						(Entity.ParentComplexObject != null && sidePixel[i].ParentComplexObject == Entity.ParentComplexObject));
 		}
 
 		public PEntity AddForce(Vector2 force)
