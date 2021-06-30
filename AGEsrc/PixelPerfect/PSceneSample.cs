@@ -1,8 +1,9 @@
 ﻿using System;
-using AnimpafGE.ECS;
-using AnimpafGE.PixelPerfect.ECS;
-using AnimpafGE.ECS.Components;
-using AnimpafGE.Graphics;
+using AGE.ECS;
+using AGE.PixelPerfect.ECS;
+using AGE.Input;
+using AGE.ECS.Components;
+using AGE.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -25,6 +26,11 @@ class PSceneSample : PScene
 
 	public override void LoadContent()
 	{
+		InputProcessor.ButtonClicked += OnButtonClicked;
+		InputProcessor.ButtonReleased += OnButtonReleased;
+		InputProcessor.ButtonHeld += OnButtonHeld;
+		InputProcessor.TouchHeld += OnTouchHeld;
+
 		//Write your Loading code here
 	}
 
@@ -43,5 +49,23 @@ class PSceneSample : PScene
 		//Write your Render code here
 
 		Trace.WriteLine("Ticks: " + (DateTime.Now.Ticks - ticks));
+	}
+
+
+	private void OnButtonClicked(Keys key)
+	{
+		throw new NotImplementedException();
+	}
+	private void OnButtonReleased(Keys key)
+	{
+		throw new NotImplementedException();
+	}
+	private void OnButtonHeld(Keys key)
+	{
+		throw new NotImplementedException();
+	}
+	private void OnTouchHeld(Vector2 touchPosition)
+	{
+		throw new NotImplementedException();
 	}
 }

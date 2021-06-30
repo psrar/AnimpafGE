@@ -4,11 +4,11 @@ using System.Text;
 using System.Linq;
 using System.Diagnostics;
 using Microsoft.Xna.Framework;
-using AnimpafGE.ECS.Components;
-using AnimpafGE.PixelPerfect;
-using AnimpafGE.PixelPerfect.ECS;
+using AGE.ECS.Components;
+using AGE.PixelPerfect;
+using AGE.PixelPerfect.ECS;
 
-namespace AnimpafGE.ECS
+namespace AGE.ECS
 {
 	public class Entity
 	{
@@ -35,7 +35,8 @@ namespace AnimpafGE.ECS
 
 			if(GetType() != typeof(PEntity) && GetType() != typeof(PComplexEntity))
 			{
-				Transform = AddComponent<Transform>().SetPosition(position);
+				Transform = AddComponent<Transform>();
+				Transform.Position = position;
 				scene.Objects.Add(this);
 			}
 		}

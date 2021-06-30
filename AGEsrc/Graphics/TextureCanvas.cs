@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace AnimpafGE.Graphics
+namespace AGE.Graphics
 {
 	public class TextureCanvas
 	{

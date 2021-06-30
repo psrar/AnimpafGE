@@ -1,9 +1,9 @@
-﻿using AnimpafGE.ECS;
-using AnimpafGE.PixelPerfect.Components;
+﻿using AGE.ECS;
+using AGE.PixelPerfect.Components;
 using Microsoft.Xna.Framework;
 using System.Collections.Generic;
 
-namespace AnimpafGE.PixelPerfect.ECS
+namespace AGE.PixelPerfect.ECS
 {
 	public class PEntity : Entity
 	{

@@ -6,15 +6,18 @@ using Microsoft.Xna.Framework.Input.Touch;
 using Microsoft.Xna.Framework;
 using System.Diagnostics;
 
-namespace AnimpafGE.Input
+namespace AGE.Input
 {
 	static public class InputProcessor
 	{
-		static List<Button> TrackedButtons = new List<Button>();
+		static List<Keys> TrackedButtons = new List<Keys>();
+		static public List<Keys> PushedKeys = new List<Keys>();
 
 		public delegate void ButtonHandler(Keys key);
 		public delegate void TouchHandler(Vector2 touchPosition);
+
 		static public event ButtonHandler ButtonClicked = delegate { };
+		static public event ButtonHandler ButtonReleased = delegate { };
 		static public event ButtonHandler ButtonHeld = delegate { };
 		static public event TouchHandler TouchHeld = delegate { };
 
@@ -24,43 +27,36 @@ namespace AnimpafGE.Input
 			if(touches.Count > 0)
 				TouchHeld(touches[0].Position);
 
-			foreach(Button button in TrackedButtons)
-				if(Keyboard.GetState().IsKeyDown(button.Key))
+			foreach(Keys key in TrackedButtons)
+				if(Keyboard.GetState().IsKeyDown(key))
 				{
-					if(!button.Processed)
+					if(PushedKeys.Contains(key))
 					{
-						button.Processed = true;
-						ButtonClicked(button.Key);
+						ButtonHeld(key);
 					}
-					ButtonHeld(button.Key);
+					else
+					{
+						PushedKeys.Add(key);
+						ButtonClicked(key);
+					}
 				}
-				else button.Processed = false;
-		}
-
-		private class Button
-		{
-			public Keys Key;
-			public bool IsDown = false;
-			public bool Processed = false;
-
-			public Button(Keys trackedKey) => Key = trackedKey;
+				else
+				{
+					if(PushedKeys.Contains(key))
+					{
+						PushedKeys.Remove(key);
+						ButtonReleased(key);
+					}
+				}
 		}
 
 		static public void TrackButton(params Keys[] keys)
 		{
 			foreach(Keys key in keys)
-			{
-				bool flag = false;
-				foreach(Button button in TrackedButtons)
-					if(button.Key == key)
-					{
-						Trace.WriteLine($"Попытка отследить кнопку {key}, которая уже отслеживается.");
-						flag = true;
-						break;
-					}
-				if(!flag)
-					TrackedButtons.Add(new Button(key));
-			}
+				if(TrackedButtons.Contains(key))
+					throw new Exception($"Попытка отследить кнопку {key}, которая уже отслеживается.");
+
+			TrackedButtons.AddRange(keys);
 		}
 	}
 }

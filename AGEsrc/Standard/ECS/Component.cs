@@ -1,14 +1,16 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Text;
 using System.Diagnostics;
-using AnimpafGE.ECS.Components;
+using AGE.ECS.Components;
 using Microsoft.Xna.Framework;
 
-namespace AnimpafGE.ECS
+namespace AGE.ECS
 {
 	public abstract class Component
 	{
+		static Type[] Unprocessable = new Type[] { typeof(Transform), typeof(Animator) };
 		public Entity Entity { get; set; }
 		public Scene ParentScene { get; set; }
 		public string Name { get; set; }
@@ -23,11 +25,9 @@ namespace AnimpafGE.ECS
 
 		public virtual void Process()
 		{
-			if(!(this is Transform))
-			{
+			if(!Unprocessable.Contains(this.GetType()))
 				if(Enabled)
 					Process();
-			}
 		}
 	}
 }

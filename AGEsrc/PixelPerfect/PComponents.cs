@@ -1,12 +1,12 @@
-﻿using AnimpafGE.ECS;
-using AnimpafGE.PixelPerfect.ECS;
+﻿using AGE.ECS;
+using AGE.PixelPerfect.ECS;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
-using AnimpafGE.Physics;
+using AGE.Physics;
 using static System.Diagnostics.Trace;
 
-namespace AnimpafGE.PixelPerfect.Components
+namespace AGE.PixelPerfect.Components
 {
 	public class PTransform : Component
 	{
@@ -93,8 +93,8 @@ namespace AnimpafGE.PixelPerfect.Components
 		public bool IsStatic { get; set; } = false;
 		int posX, posY, posXE, posYE, dx, dy;
 
-		bool[] clampedSide = new bool[8];
-		PEntity[] sidePixel = new PEntity[8];
+		readonly bool[] clampedSide = new bool[8];
+		readonly PEntity[] sidePixel = new PEntity[8];
 		//0- up 1- right 2- down 3- left 4- topright 5- bottomright 6- bottomleft 7- topleft
 
 		public delegate void CollisionHandler(PEntity pixelCollided, Entity collider, Side side = Side.None);

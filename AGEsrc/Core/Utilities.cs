@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
 
-namespace AnimpafGE
+namespace AGE
 {
 	static public class Utilities
 	{
@@ -20,9 +20,6 @@ namespace AnimpafGE
 		/// <summary>
 		/// Min and max are inclusive int vectors.
 		/// </summary>
-		/// <param name="max"></param>
-		/// <param name="min"></param>
-		/// <returns></returns>
 		static public Vector2 GetRandomPosition(Vector2 min, Vector2 max)
 		{
 			Random rnd = new Random();

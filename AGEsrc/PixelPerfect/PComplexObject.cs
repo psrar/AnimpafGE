@@ -1,14 +1,14 @@
-﻿using AnimpafGE.PixelPerfect.ECS;
+﻿using AGE.PixelPerfect.ECS;
 using Microsoft.Xna.Framework;
 using System.Collections.Generic;
 using System;
 using System.Linq;
 using System.Diagnostics;
-using AnimpafGE.ECS;
-using AnimpafGE.PixelPerfect.Components;
-using AnimpafGE.Physics;
+using AGE.ECS;
+using AGE.PixelPerfect.Components;
+using AGE.Physics;
 
-namespace AnimpafGE.PixelPerfect
+namespace AGE.PixelPerfect
 {
 	public class PComplexEntity : Entity
 	{
@@ -39,7 +39,7 @@ namespace AnimpafGE.PixelPerfect
 			PScene = (PScene)scene;
 			ID = this.GetHashCode().ToString();
 
-			if(GetType() != typeof(AnimpafGE.PixelPerfect.ECS.PEntity))
+			if(GetType() != typeof(AGE.PixelPerfect.ECS.PEntity))
 			{
 				Transform = AddComponent<PComplexTransform>();
 				scene.Objects.Add(this);

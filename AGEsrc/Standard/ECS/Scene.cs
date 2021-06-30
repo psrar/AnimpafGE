@@ -3,14 +3,13 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input.Touch;
 using System.Collections.Generic;
-using AnimpafGE.Input;
+using AGE.Input;
 
-namespace AnimpafGE.ECS
+namespace AGE.ECS
 {
 	public abstract class Scene
 	{
-		protected Game ParentGame { get; set; }
-		public ContentManager Content { get; set; }
+		public Game ParentGame { get; set; }
 
 		public GameTime GameTime { get; set; }
 		static public float DeltaTime { get; set; }
@@ -28,7 +27,6 @@ namespace AnimpafGE.ECS
 		protected Scene(Game game)
 		{
 			ParentGame = game;
-			Content = ParentGame.Content;
 		}
 
 		public virtual void Initialize()

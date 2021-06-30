@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Collections.Generic;
-using AnimpafGE.ECS;
-using AnimpafGE.PixelPerfect.Components;
-using AnimpafGE.Graphics;
+using AGE.ECS;
+using AGE.PixelPerfect.Components;
+using AGE.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace AnimpafGE.PixelPerfect.ECS
+namespace AGE.PixelPerfect.ECS
 {
 	public class PScene : Scene
 	{

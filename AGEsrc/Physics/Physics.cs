@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 
-namespace AnimpafGE.Physics
+namespace AGE.Physics
 {
 	public static class PhysicalConstants
 	{
