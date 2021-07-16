@@ -48,7 +48,7 @@ namespace AGE.ECS.Components
 		public Texture2D Sprite { get; set; }
 		SpriteBatch Batch { get; set; }
 		public Color Color { get; set; } = Color.White;
-		public SpriteEffects SpriteEffect { get; set; } = SpriteEffects.None;
+		public SpriteEffects Mirroring { get; set; } = SpriteEffects.None;
 		int Layer { get; set; } = 0;
 
 		public Vector2 TopLeft { get; set; }
@@ -82,7 +82,7 @@ namespace AGE.ECS.Components
 					Entity.Transform.Rotation,              //Rotation
 					Sprite.Bounds.Size.ToVector2() / 2,     // Origin
 					Entity.Transform.Scaling,               // Scale
-					SpriteEffect,		                    // Mirroring effect
+					Mirroring,			                    // Mirroring effect
 					Layer);                                 // Depth
 			}
 		}
@@ -121,6 +121,7 @@ namespace AGE.ECS.Components
 		SpriteRenderer spriteRenderer;
 
 		public bool Cycled = true;
+		/// <summary>Интервал между кадрами анимации в миллисекундах</summary>
 		public int Interval { get; set; } = 1000;
 
 		Dictionary<string, Animation> StateMap = new Dictionary<string, Animation>();
