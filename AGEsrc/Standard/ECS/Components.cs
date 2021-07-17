@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using static AGE.Extensions;
 using AGE.Physics;
 using AGE.Graphics;
 using System.Threading;
@@ -19,7 +20,7 @@ namespace AGE.ECS.Components
 		/// <summary>Расположение объекта на сцене</summary>
 		public Vector2 Position { get; set; } = Vector2.Zero;
 		/// <summary>Масштаб объекта</summary>
-		public Vector2 Scaling { get; set; } = Vector2.One;
+		public Vector2 Scaling { get; private set; } = Vector2.One;
 		/// <summary>Вращение объекта</summary>
 		public float Rotation { get; set; } = 0;
 
@@ -36,10 +37,29 @@ namespace AGE.ECS.Components
 		/// <summary>Перемещение объекта</summary>
 		public void Locate(float position) => Position = new Vector2(position);
 
-		/// <summary>Изменение размеров объекта</summary>
-		public void Scale(Vector2 scaling) => Scaling += scaling;
-		/// <summary>Изменение размеров объекта</summary>
-		public void Scale(float scaling) => Scaling += new Vector2(scaling, scaling);
+		public void SetScaling(Vector2 scaling)
+		{
+			Scaling = scaling;
+			ScaleChanged();
+		}
+		public void SetScaling(float scaling)
+		{
+			Scaling = new Vector2(scaling);
+			ScaleChanged();
+		}
+		public void Scale(Vector2 scaling)
+		{
+			Scaling += scaling;
+			ScaleChanged();
+		}
+		public void Scale(float scaling)
+		{
+			Scaling += new Vector2(scaling, scaling);
+			ScaleChanged();
+		}
+
+		public delegate void ScaleHandler();
+		public event ScaleHandler ScaleChanged = delegate { };
 	}
 
 	/// <summary>Компонент, отвечающий за отрисовку спрайта на сцене.</summary>
@@ -79,10 +99,10 @@ namespace AGE.ECS.Components
 					Entity.Transform.Position,              // Position
 					null,                                   // Source rectangle
 					Color,                                  // Color
-					Entity.Transform.Rotation,              //Rotation
+					Entity.Transform.Rotation,              // Rotation
 					Sprite.Bounds.Size.ToVector2() / 2,     // Origin
 					Entity.Transform.Scaling,               // Scale
-					Mirroring,			                    // Mirroring effect
+					Mirroring,                              // Mirroring effect
 					Layer);                                 // Depth
 			}
 		}
@@ -94,7 +114,7 @@ namespace AGE.ECS.Components
 		}
 	}
 
-	/// <summary>Компонент, отвечающий за физику объекта.</summary>
+	/// <summary>Компонент, отвечающий за перемещение объекта.</summary>
 	public class RigidBody : Component
 	{
 		public RigidType RigidType { get; set; } = RigidType.Dynamic;
@@ -112,6 +132,75 @@ namespace AGE.ECS.Components
 				Velocity += Gravity * deltaTime;
 
 			Entity.Transform.Position += Velocity * deltaTime;
+		}
+
+		public void OnCollision(Side side)
+		{
+			switch(side)
+			{
+				case Side.Top:
+					break;
+				case Side.Right:
+					break;
+				case Side.Bottom:
+					Entity.Transform.Position = new Vector2(Entity.Transform.Position.X,
+						Entity.ParentScene.maxCoord.Y - 140);
+					if(Velocity.Y > 0)
+						Velocity *= Vector2.UnitX;
+					break;
+				case Side.Left:
+					break;
+			}
+		}
+	}
+
+	/// <summary>Компонент, задающий границы коллайдера для объекта</summary>
+	public class BoxCollider : Component
+	{
+		public Rectangle Collider = new Rectangle();
+
+		public delegate void CollisionHandler(Side side);
+		public event CollisionHandler Collided;
+
+		public override void Init()
+		{
+			if(Entity.GetComponent<RigidBody>() is null)
+				throw new Exception("Компонент BoxCollider требует наличия у объекта компонента RigidBody");
+
+			Collided += Entity.GetComponent<RigidBody>().OnCollision;
+
+			Entity.Transform.ScaleChanged += OnTransformScaled;
+		}
+
+		public BoxCollider SetSize(int size)
+		{
+			Collider = new Rectangle(IncrementVector(Entity.Transform.Position, -size / 2).ToPoint(),
+				new Point(size));
+			return this;
+		}
+		public BoxCollider SetSize(int width, int height)
+		{
+			Vector2 size = new Vector2(width, height) * Entity.Transform.Scaling;
+			Collider = new Rectangle((Entity.Transform.Position - size / 2).ToPoint(),
+				new Point(width, height));
+			return this;
+		}
+
+		private void OnTransformScaled()
+		{
+			int newSizeX = Collider.Width * (int)Entity.Transform.Scaling.X;
+			int newSizeY = Collider.Height * (int)Entity.Transform.Scaling.Y;
+			Collider =
+				new Rectangle((Entity.Transform.Position - new Vector2(newSizeX, newSizeY) / 2).ToPoint(),
+				new Point(newSizeX, newSizeY));
+		}
+
+		public override void Process()
+		{
+			Collider.Location = (Entity.Transform.Position - Collider.Size.ToVector2() / 2).ToPoint();
+
+			if(Collider.Bottom > Entity.ParentScene.maxCoord.Y)
+				Collided(Side.Bottom);
 		}
 	}
 

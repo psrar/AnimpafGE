@@ -55,30 +55,5 @@ namespace AGE.Physics
 				EndPoint = new Point(x2, y2);
 			}
 		}
-
-		public struct BoxCollider
-		{
-			Rectangle Rectangle { get; set; }
-
-			public BoxCollider(int x, int y, int width, int height) => Rectangle = new Rectangle(x, y, width, height);
-			public BoxCollider(Point position, Point size) => Rectangle = new Rectangle(position, size);
-			public BoxCollider(Vector2 position, Vector2 size) => Rectangle = new Rectangle(position.ToPoint(), size.ToPoint());
-
-			public enum Borders
-			{
-				Up, Right, Down, Left
-			}
-			public Line GetBorder(Borders border)
-			{
-				return border switch
-				{
-					Borders.Up => new Line(Rectangle.X, Rectangle.Y, Rectangle.Right, Rectangle.Top),
-					Borders.Right => new Line(Rectangle.Right, Rectangle.Top, Rectangle.Right, Rectangle.Bottom),
-					Borders.Down => new Line(Rectangle.Left, Rectangle.Bottom, Rectangle.Right, Rectangle.Bottom),
-					Borders.Left => new Line(Rectangle.Left, Rectangle.Bottom, Rectangle.Left, Rectangle.Y),
-					_ => new Line(),
-				};
-			}
-		}
 	}
 }

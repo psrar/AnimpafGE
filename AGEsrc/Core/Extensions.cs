@@ -8,9 +8,7 @@ namespace AGE
 	static class Extensions
 	{
 		//Math
-		/// <summary>
-		/// Устанавливает компонент вектора.
-		/// </summary>
+		/// <summary>Устанавливает компонент вектора.</summary>
 		/// <param name="axis">X,x или Y,y</param>
 		/// <param name="value">Новое значение указанной координаты</param>
 		static public Vector2 Set(ref this Vector2 vector, char axis, float value)
@@ -23,5 +21,10 @@ namespace AGE
 
 			return vector;
 		}
+
+		static public Vector2 IncrementVector(Vector2 vector, float value)
+			=> vector += new Vector2(value);
+		static public Vector2 IncrementVector(ref Vector2 vector, float value) =>
+			vector += new Vector2(value);
 	}
 }
