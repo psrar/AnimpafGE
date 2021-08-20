@@ -4,20 +4,26 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input.Touch;
 using System.Collections.Generic;
 using AGE.Input;
+using AGE.ECS.Components;
+using System;
 
 namespace AGE.ECS
 {
 	public abstract class Scene
 	{
-		public Game ParentGame { get; set; }
+		public Game ParentGame;
+		public ContentManager Content;
 
-		public GameTime GameTime { get; set; }
-		static public float DeltaTime { get; set; }
-		public int UpdateFrame { get; set; }
-		public int RenderFrame { get; set; }
+		public GameTime GameTime;
+		static public float DeltaTime;
+		public int UpdateFrame;
+		public int RenderFrame;
 
-		public string Name { get; set; }
-		public List<Entity> Objects { get; set; } = new List<Entity>();
+		List<InputProcessor> InputProcessors = new List<InputProcessor>();
+
+		public string Name;
+		public List<Entity> Objects = new List<Entity>();
+		public List<BoxCollider> Colliders = new List<BoxCollider>();
 
 		public SpriteBatch spriteBatch;
 
@@ -27,6 +33,7 @@ namespace AGE.ECS
 		protected Scene(Game game)
 		{
 			ParentGame = game;
+			Content = ParentGame.Content;
 		}
 
 		public virtual void Initialize()
@@ -49,7 +56,8 @@ namespace AGE.ECS
 
 		public virtual void Process(GameTime gameTime)
 		{
-			InputProcessor.Process();
+			foreach(var item in InputProcessors)
+				item.Process();
 
 			UpdateFrame++;
 			GameTime = gameTime;
@@ -66,6 +74,14 @@ namespace AGE.ECS
 				entity.Process();
 
 			spriteBatch.End();
+		}
+
+		public void TrackInputProcessor(InputProcessor inputProcessor)
+		{
+			if(InputProcessors.Contains(inputProcessor))
+				throw new Exception("Этот InputProcessor уже отслеживается в данной сцене.");
+
+			InputProcessors.Add(inputProcessor);
 		}
 	}
 }

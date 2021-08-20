@@ -10,6 +10,8 @@ namespace AGE.ECS
 {
 	class SceneTemplate : Scene
 	{
+		InputProcessor BasicInput;
+
 		public SceneTemplate(Game game, string name = null) : base(game)
 		{
 			Name = name ?? "SimpleScene";
@@ -20,14 +22,16 @@ namespace AGE.ECS
 			base.Initialize();
 
 			//Write your initialization logic here
+
+			BasicInput = new InputProcessor(this);
 		}
 
 		public override void LoadContent()
 		{
-			InputProcessor.ButtonClicked += OnButtonClicked;
-			InputProcessor.ButtonReleased += OnButtonReleased;
-			InputProcessor.ButtonHeld += OnButtonHeld;
-			InputProcessor.TouchHeld += OnTouchHeld;
+			BasicInput.ButtonClicked += OnButtonClicked;
+			BasicInput.ButtonReleased += OnButtonReleased;
+			BasicInput.ButtonHeld += OnButtonHeld;
+			BasicInput.TouchHeld += OnTouchHeld;
 
 			//Write your loading code here
 		}

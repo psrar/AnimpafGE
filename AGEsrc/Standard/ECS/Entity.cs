@@ -4,6 +4,7 @@ using System.Text;
 using System.Linq;
 using System.Diagnostics;
 using Microsoft.Xna.Framework;
+using System.Reflection;
 using AGE.ECS.Components;
 using AGE.PixelPerfect;
 using AGE.PixelPerfect.ECS;
@@ -56,6 +57,10 @@ namespace AGE.ECS
 		/// <param name="component"></param>
 		public T AddComponent<T>() where T : Component, new()
 		{
+			if(Components.OfType<T>().Any())
+				throw new Exception($"Добавление компонента {typeof(T)} невозможно:\n" +
+			  $"объект {ID} уже имеет данный компонент.");
+
 			T component = new T
 			{
 				Entity = this,
@@ -63,17 +68,12 @@ namespace AGE.ECS
 			};
 			component.Init();
 
-			if(!Components.OfType<T>().Any())
-			{
-				Components.Add(component);
-				return component;
-			}
-			else
-			{
-				Trace.WriteLine($"Добавление компонента {component} невозможно:\n" +
-			  $"объект {ID} уже имеет данный компонент.");
-				return null;
-			}
+			Components.Add(component);
+
+			if(typeof(T) == typeof(BoxCollider))
+				ParentScene.Colliders.Add(component as BoxCollider);
+
+			return component;
 		}
 
 		/// <summary>

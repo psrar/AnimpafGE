@@ -83,11 +83,11 @@ namespace AGE.PixelPerfect.Components
 		PTransform Transform;
 		PScene PScene { get; set; }
 
-		public Vector2 Velocity { get; set; } = Vector2.Zero;
-		public Vector2 Acceleration { get; set; } = Vector2.Zero;
-		public float AccelerationSave { get; set; } = 0.95f;
-		public float VelocitySave { get; set; } = 0.95f;
-		public RigidType Type { get; set; }
+		public Vector2 Velocity = Vector2.Zero;
+		public Vector2 Acceleration = Vector2.Zero;
+		public float AccelerationSave = 0.95f;
+		public float VelocitySave = 0.95f;
+		public RigidType Type;
 
 		public bool UseGravity { get; set; } = false;
 		public bool IsStatic { get; set; } = false;

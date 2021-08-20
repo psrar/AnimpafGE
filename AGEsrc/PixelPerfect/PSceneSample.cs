@@ -11,6 +11,8 @@ using System.Diagnostics;
 
 class PSceneSample : PScene
 {
+	InputProcessor BasicInput;
+
 	public PSceneSample(Game game, int pixelSize, int width, int height, string name = null)
 		: base(game, pixelSize, width, height, name)
 	{
@@ -22,14 +24,16 @@ class PSceneSample : PScene
 		base.Initialize();
 
 		//Write your Initialize code here
+
+		BasicInput = new InputProcessor(this);
 	}
 
 	public override void LoadContent()
 	{
-		InputProcessor.ButtonClicked += OnButtonClicked;
-		InputProcessor.ButtonReleased += OnButtonReleased;
-		InputProcessor.ButtonHeld += OnButtonHeld;
-		InputProcessor.TouchHeld += OnTouchHeld;
+		BasicInput.ButtonClicked += OnButtonClicked;
+		BasicInput.ButtonReleased += OnButtonReleased;
+		BasicInput.ButtonHeld += OnButtonHeld;
+		BasicInput.TouchHeld += OnTouchHeld;
 
 		//Write your Loading code here
 	}

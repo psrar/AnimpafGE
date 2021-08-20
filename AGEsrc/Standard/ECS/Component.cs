@@ -4,13 +4,14 @@ using System.Collections.Generic;
 using System.Text;
 using System.Diagnostics;
 using AGE.ECS.Components;
+using AGE.ECS;
 using Microsoft.Xna.Framework;
 
 namespace AGE.ECS
 {
 	public abstract class Component
 	{
-		static Type[] Unprocessable = new Type[] { typeof(Transform), typeof(Animator) };
+		static readonly Type[] Unprocessable = new Type[] { typeof(Transform), typeof(Animator) };
 		public Entity Entity { get; set; }
 		public Scene ParentScene { get; set; }
 		public string Name { get; set; }

@@ -5,25 +5,28 @@ using System.Linq;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Input.Touch;
 using Microsoft.Xna.Framework;
+using AGE.ECS;
 using System.Diagnostics;
 
 namespace AGE.Input
 {
-	static public class InputProcessor
+	public enum Direction { Up, Right, Down, Left }
+
+
+	public class InputProcessor
 	{
-		static List<Keys> TrackedButtons = new List<Keys>();
-		static public List<Keys> PushedKeys = new List<Keys>();
-		static public Keys[] DirectionKeys { get; private set; } = new Keys[4];
+		List<Keys> TrackedButtons = new List<Keys>();
+		public List<Keys> PushedKeys = new List<Keys>();
+		public Keys[] DirectionKeys { get; private set; } = new Keys[4];
 
 		public delegate void ButtonHandler(Keys key);
 		public delegate void TouchHandler(Vector2 touchPosition);
 
-		static public event ButtonHandler ButtonClicked = delegate { };
-		static public event ButtonHandler ButtonReleased = delegate { };
-		static public event ButtonHandler ButtonHeld = delegate { };
-		static public event TouchHandler TouchHeld = delegate { };
+		public event ButtonHandler ButtonClicked = delegate { };
+		public event ButtonHandler ButtonReleased = delegate { };
+		public event ButtonHandler ButtonHeld = delegate { };
+		public event TouchHandler TouchHeld = delegate { };
 
-		public enum Direction { Up, Right, Down, Left }
 		private static Vector2 axis;
 		public static Vector2 Axis
 		{
@@ -31,7 +34,9 @@ namespace AGE.Input
 			set => axis = value;
 		}
 
-		static public void Process()
+		public InputProcessor(Scene scene) => scene.TrackInputProcessor(this);
+
+		public void Process()
 		{
 			TouchCollection touches = TouchPanel.GetState();
 			if(touches.Count > 0)
@@ -74,7 +79,7 @@ namespace AGE.Input
 				Axis *= Vector2.UnitY;
 		}
 
-		static public void TrackButton(params Keys[] keys)
+		public void TrackButton(params Keys[] keys)
 		{
 			foreach(Keys key in keys)
 				if(TrackedButtons.Contains(key))
@@ -82,7 +87,7 @@ namespace AGE.Input
 
 			TrackedButtons.AddRange(keys);
 		}
-		static public void AlignDirectionButton(Direction direction, Keys key)
+		public void AlignDirectionButton(Direction direction, Keys key)
 		{
 			switch(direction)
 			{

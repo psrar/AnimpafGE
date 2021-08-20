@@ -28,7 +28,6 @@ namespace AGE.ECS.Components
 		/// <param name="translation">Вектор перемещения</param>
 		public void Translate(Vector2 translation) => Position += translation;
 
-
 		/// <summary>Устанавливает вращение в градусах</summary>
 		public void Rotate(float angle) => Rotation = MathHelper.ToRadians(angle);
 
@@ -74,7 +73,6 @@ namespace AGE.ECS.Components
 		public Vector2 TopLeft { get; set; }
 		public Vector2 BottomRight { get; set; }
 
-
 		public override void Init()
 		{
 			Batch = ParentScene.spriteBatch;
@@ -117,49 +115,73 @@ namespace AGE.ECS.Components
 	/// <summary>Компонент, отвечающий за перемещение объекта.</summary>
 	public class RigidBody : Component
 	{
-		public RigidType RigidType { get; set; } = RigidType.Dynamic;
-		public bool UseGravity { get; set; } = true;
-		Vector2 Gravity = new Vector2(0, 9800 / 2);
+		public RigidType RigidType = RigidType.Dynamic;
+		public float Mass = 1;
+		public bool UseGravity = true;
+		Vector2 Gravity = new Vector2(0, 9800 / 2f);
 
-		public Vector2 Velocity { get; set; }
+		public Vector2 Velocity;
+		public float VelocitySave = 0.98f;
+		public Vector2 Overlap = Vector2.Zero;
 
 		float deltaTime;
 
 		public override void Process()
 		{
-			deltaTime = ParentScene.GameTime.ElapsedGameTime.Milliseconds / 1000f;
-			if(UseGravity)
-				Velocity += Gravity * deltaTime;
+			if(RigidType != RigidType.Static)
+			{
+				deltaTime = ParentScene.GameTime.ElapsedGameTime.Milliseconds / 1000f;
+				if(UseGravity)
+					Velocity += Gravity * deltaTime;
 
-			Entity.Transform.Position += Velocity * deltaTime;
+				Entity.Transform.Position += Velocity * deltaTime;
+				Entity.GetComponent<BoxCollider>()?.Process();
+
+				Velocity *= VelocitySave;
+			}
 		}
 
-		public void OnCollision(Side side)
+		public void OnCollision(Side side, BoxCollider collider, Vector2 overlap)
 		{
+			Overlap = overlap;
+
 			switch(side)
 			{
 				case Side.Top:
+					Entity.Transform.Position += Vector2.UnitY * Overlap.Y;
+					collider.RigidBody.Velocity += Vector2.UnitY * Velocity.Y * Mass / collider.RigidBody.Mass / 50;
+					Velocity *= Vector2.UnitX;
 					break;
 				case Side.Right:
+					Entity.Transform.Position += Vector2.UnitX * Overlap.X;
+					collider.RigidBody.Velocity += Vector2.UnitX * Velocity.X * Mass / collider.RigidBody.Mass / 50;
+					Velocity *= Vector2.UnitY;
 					break;
 				case Side.Bottom:
-					Entity.Transform.Position = new Vector2(Entity.Transform.Position.X,
-						Entity.ParentScene.maxCoord.Y - 140);
-					if(Velocity.Y > 0)
-						Velocity *= Vector2.UnitX;
+					Entity.Transform.Position += Vector2.UnitY * Overlap.Y;
+					if(collider != null)
+						collider.RigidBody.Velocity += Vector2.UnitY * Velocity.Y * Mass / collider.RigidBody.Mass / 50;
+					Velocity *= Vector2.UnitX;
 					break;
 				case Side.Left:
+					Entity.Transform.Position += Vector2.UnitX * Overlap.X;
+					collider.RigidBody.Velocity += Vector2.UnitX * Velocity.X * Mass / collider.RigidBody.Mass / 50;
+					Velocity *= Vector2.UnitY;
 					break;
 			}
 		}
 	}
 
-	/// <summary>Компонент, задающий границы коллайдера для объекта</summary>
+	/// <summary>Компонент, задающий границы коллайдера для объекта.<br/>
+	/// Если у объекта должен быть спрайт, сначала добавьте его.</summary>
 	public class BoxCollider : Component
 	{
 		public Rectangle Collider = new Rectangle();
 
-		public delegate void CollisionHandler(Side side);
+		public RigidBody RigidBody;
+		public Transform Transform;
+
+		public delegate void CollisionHandler(Side side, BoxCollider collider, Vector2 overlap);
 		public event CollisionHandler Collided;
 
 		public override void Init()
@@ -167,40 +189,84 @@ namespace AGE.ECS.Components
 			if(Entity.GetComponent<RigidBody>() is null)
 				throw new Exception("Компонент BoxCollider требует наличия у объекта компонента RigidBody");
 
-			Collided += Entity.GetComponent<RigidBody>().OnCollision;
+			RigidBody = Entity.GetComponent<RigidBody>();
+			Transform = Entity.GetComponent<Transform>();
+			Collided += RigidBody.OnCollision;
 
-			Entity.Transform.ScaleChanged += OnTransformScaled;
+			Transform.ScaleChanged += OnTransformScaled;
+
+			if(Entity.GetComponent<SpriteRenderer>()?.Sprite != null)
+				SetSizeBasedOnSprite();
+		}
+
+		public BoxCollider SetSizeBasedOnSprite()
+		{
+			SpriteRenderer spriteRenderer = Entity.GetComponent<SpriteRenderer>();
+			if(spriteRenderer != null)
+				if(spriteRenderer.Sprite != null)
+					SetSize(spriteRenderer.Sprite.Width * Transform.Scaling.X,
+						spriteRenderer.Sprite.Height * Transform.Scaling.Y);
+				else throw new Exception("У данного объекта отсутствует спрайт.");
+			else throw new Exception("У данного объекта отсутствует компонент SpriteRenderer.");
+			return this;
 		}
 
 		public BoxCollider SetSize(int size)
 		{
-			Collider = new Rectangle(IncrementVector(Entity.Transform.Position, -size / 2).ToPoint(),
+			Collider = new Rectangle(IncrementVector(Transform.Position, -size / 2).ToPoint(),
 				new Point(size));
 			return this;
 		}
-		public BoxCollider SetSize(int width, int height)
+		public BoxCollider SetSize(float width, float height)
 		{
-			Vector2 size = new Vector2(width, height) * Entity.Transform.Scaling;
-			Collider = new Rectangle((Entity.Transform.Position - size / 2).ToPoint(),
-				new Point(width, height));
+			Vector2 size = new Vector2(width, height) * Transform.Scaling;
+			Collider = new Rectangle((Transform.Position - size / 2).ToPoint(),
+				new Point((int)MathF.Round(width), (int)MathF.Round(height)));
 			return this;
 		}
 
 		private void OnTransformScaled()
 		{
-			int newSizeX = Collider.Width * (int)Entity.Transform.Scaling.X;
-			int newSizeY = Collider.Height * (int)Entity.Transform.Scaling.Y;
+			int newSizeX = Collider.Width * (int)Transform.Scaling.X;
+			int newSizeY = Collider.Height * (int)Transform.Scaling.Y;
 			Collider =
-				new Rectangle((Entity.Transform.Position - new Vector2(newSizeX, newSizeY) / 2).ToPoint(),
+				new Rectangle((Transform.Position - new Vector2(newSizeX, newSizeY) / 2).ToPoint(),
 				new Point(newSizeX, newSizeY));
 		}
 
 		public override void Process()
 		{
-			Collider.Location = (Entity.Transform.Position - Collider.Size.ToVector2() / 2).ToPoint();
+			if(RigidBody.RigidType != RigidType.Static)
+			{
+				Collider.Location = (Vector2.Round(Transform.Position) - Collider.Size.ToVector2() / 2).ToPoint();
 
-			if(Collider.Bottom > Entity.ParentScene.maxCoord.Y)
-				Collided(Side.Bottom);
+				if(Collider.Bottom > Entity.ParentScene.maxCoord.Y)
+					Collided(Side.Bottom, null,
+						Vector2.UnitY * (Entity.ParentScene.maxCoord.Y - Collider.Bottom));
+
+				foreach(BoxCollider coll in ParentScene.Colliders)
+				{
+					if(coll != this)
+					{
+						Rectangle c = coll.Collider;
+
+						if(Collider.Intersects(c))
+						{
+							Vector2 overlap = Collider.GetIntersectionDepth(c);
+							if(Math.Abs(overlap.X) < Math.Abs(overlap.Y))
+								if(overlap.X < 0)
+									Collided(Side.Right, coll, overlap);
+								else
+									Collided(Side.Left, coll, overlap);
+							else
+								if(overlap.Y < 0)
+								Collided(Side.Top, coll, overlap);
+							else
+								Collided(Side.Bottom, coll, overlap);
+						}
+					}
+				}
+			}
 		}
 	}
 
@@ -224,7 +290,6 @@ namespace AGE.ECS.Components
 		public override void Init()
 		{
 			spriteRenderer = Entity.GetComponent<SpriteRenderer>();
-			TimerCallback timerCallback = new TimerCallback(NextSprite);
 		}
 
 		public void CreateState(string stateName, Animation animation)
