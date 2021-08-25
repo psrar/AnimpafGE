@@ -34,10 +34,10 @@ namespace AGE.Arcade
 
 	public abstract class Fighter : Entity
 	{
-		InputProcessor Input;
-		RigidBody Body;
-		SpriteRenderer Renderer;
-		BoxCollider Collider;
+		protected InputProcessor Input;
+		protected RigidBody Body;
+		protected SpriteRenderer Renderer;
+		protected BoxCollider Collider;
 
 		FighterLayout Layout;
 

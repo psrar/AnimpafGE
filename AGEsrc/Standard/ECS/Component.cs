@@ -11,7 +11,7 @@ namespace AGE.ECS
 {
 	public abstract class Component
 	{
-		static readonly Type[] Unprocessable = new Type[] { typeof(Transform), typeof(Animator) };
+		static public readonly Type[] Unprocessable = new Type[] { typeof(Transform), typeof(Animator) };
 		public Entity Entity { get; set; }
 		public Scene ParentScene { get; set; }
 		public string Name { get; set; }
@@ -24,11 +24,6 @@ namespace AGE.ECS
 
 		public virtual void Init() { }
 
-		public virtual void Process()
-		{
-			if(!Unprocessable.Contains(this.GetType()))
-				if(Enabled)
-					Process();
-		}
+		public virtual void Process() { }
 	}
 }

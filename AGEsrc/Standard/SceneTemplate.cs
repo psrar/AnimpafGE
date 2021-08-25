@@ -5,6 +5,7 @@ using AGE.Input;
 using Microsoft.Xna.Framework;
 using System.Diagnostics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Input.Touch;
 
 namespace AGE.ECS
 {
@@ -31,7 +32,7 @@ namespace AGE.ECS
 			BasicInput.ButtonClicked += OnButtonClicked;
 			BasicInput.ButtonReleased += OnButtonReleased;
 			BasicInput.ButtonHeld += OnButtonHeld;
-			BasicInput.TouchHeld += OnTouchHeld;
+			BasicInput.Touching += OnTouch;
 
 			//Write your loading code here
 		}
@@ -64,7 +65,7 @@ namespace AGE.ECS
 		{
 			throw new NotImplementedException();
 		}
-		private void OnTouchHeld(Vector2 touchPosition)
+		private void OnTouch(TouchCollection touches)
 		{
 			throw new NotImplementedException();
 		}

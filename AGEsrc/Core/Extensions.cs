@@ -5,13 +5,13 @@ using Microsoft.Xna.Framework;
 
 namespace AGE
 {
-	static class Extensions
+	static public class Extensions
 	{
 		//Math
 		/// <summary>Устанавливает компонент вектора.</summary>
 		/// <param name="axis">X,x или Y,y</param>
 		/// <param name="value">Новое значение указанной координаты</param>
-		static public Vector2 Set(ref this Vector2 vector, char axis, float value)
+		static public Vector2 SetAxis(ref this Vector2 vector, char axis, float value)
 		{
 			if(axis == 'X' || axis == 'x')
 				vector = new Vector2(value, vector.Y);

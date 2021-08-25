@@ -20,12 +20,12 @@ namespace AGE.Input
 		public Keys[] DirectionKeys { get; private set; } = new Keys[4];
 
 		public delegate void ButtonHandler(Keys key);
-		public delegate void TouchHandler(Vector2 touchPosition);
+		public delegate void TouchHandler(TouchCollection touches);
 
 		public event ButtonHandler ButtonClicked = delegate { };
 		public event ButtonHandler ButtonReleased = delegate { };
 		public event ButtonHandler ButtonHeld = delegate { };
-		public event TouchHandler TouchHeld = delegate { };
+		public event TouchHandler Touching = delegate { };
 
 		private static Vector2 axis;
 		public static Vector2 Axis
@@ -40,7 +40,7 @@ namespace AGE.Input
 		{
 			TouchCollection touches = TouchPanel.GetState();
 			if(touches.Count > 0)
-				TouchHeld(touches[0].Position);
+				Touching(touches);
 
 			foreach(Keys key in TrackedButtons)
 				if(Keyboard.GetState().IsKeyDown(key))
@@ -65,16 +65,16 @@ namespace AGE.Input
 				}
 
 			if(PushedKeys.Contains(DirectionKeys[0]))
-				axis.Set('y', -1);
+				axis.SetAxis('y', -1);
 			else if(PushedKeys.Contains(DirectionKeys[2]))
-				axis.Set('y', 1);
+				axis.SetAxis('y', 1);
 			else
 				Axis *= Vector2.UnitX;
 
 			if(PushedKeys.Contains(DirectionKeys[1]))
-				axis.Set('x', 1);
+				axis.SetAxis('x', 1);
 			else if(PushedKeys.Contains(DirectionKeys[3]))
-				axis.Set('x', -1);
+				axis.SetAxis('x', -1);
 			else
 				Axis *= Vector2.UnitY;
 		}

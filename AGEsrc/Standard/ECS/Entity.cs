@@ -48,7 +48,8 @@ namespace AGE.ECS
 		public virtual void Process()
 		{
 			foreach(Component component in Components)
-				component.Process();
+				if(component.Enabled)
+					component.Process();
 		}
 
 		/// <summary>

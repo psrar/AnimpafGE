@@ -7,6 +7,7 @@ using AGE.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Input.Touch;
 using System.Diagnostics;
 
 class PSceneSample : PScene
@@ -33,7 +34,7 @@ class PSceneSample : PScene
 		BasicInput.ButtonClicked += OnButtonClicked;
 		BasicInput.ButtonReleased += OnButtonReleased;
 		BasicInput.ButtonHeld += OnButtonHeld;
-		BasicInput.TouchHeld += OnTouchHeld;
+		BasicInput.Touching += OnTouch;
 
 		//Write your Loading code here
 	}
@@ -68,7 +69,7 @@ class PSceneSample : PScene
 	{
 		throw new NotImplementedException();
 	}
-	private void OnTouchHeld(Vector2 touchPosition)
+	private void OnTouch(TouchCollection touchPosition)
 	{
 		throw new NotImplementedException();
 	}

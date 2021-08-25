@@ -110,7 +110,7 @@ namespace AGE.PixelPerfect.ECS
 
 		public virtual void InitBackground(Color? color = null)
 		{
-			Background = new TextureCanvas(Core.Graphics.GraphicsDevice, PixelSize, Core.Graphics.PreferredBackBufferWidth,
+			Background = new TextureCanvas(Core.Graphics.GraphicsDevice, Core.Graphics.PreferredBackBufferWidth,
 				Core.Graphics.PreferredBackBufferHeight, color);
 		}
 

@@ -27,8 +27,8 @@ namespace AGE.ECS
 
 		public SpriteBatch spriteBatch;
 
-		public Vector2 maxCoord;
 		public Vector2 minCoord;
+		public Vector2 maxCoord;
 
 		protected Scene(Game game)
 		{
@@ -43,13 +43,6 @@ namespace AGE.ECS
 			minCoord = Vector2.Zero;
 			maxCoord = new Vector2(ParentGame.Window.ClientBounds.Width,
 				ParentGame.Window.ClientBounds.Height);
-
-
-			if(TouchPanel.GetState().IsConnected)
-			{
-				minCoord = Vector2.Zero;
-				 maxCoord = new Vector2(Core.Graphics.PreferredBackBufferWidth, Core.Graphics.PreferredBackBufferHeight);
-			}
 		}
 
 		public abstract void LoadContent();

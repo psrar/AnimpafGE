@@ -11,16 +11,15 @@ namespace AGE.Graphics
 {
 	public class TextureCanvas
 	{
-		public Texture2D Texture { get; set; }
-		public UInt32[] Pixels { get; private set; }
-		public UInt32[,] Pixels2D { get; set; }
-		private int Width, Height, PixelSize;
+		public Texture2D Texture;
+		private UInt32[] Pixels;
+		private UInt32[,] Pixels2D;
+		private int Width, Height;
 
-		public TextureCanvas(GraphicsDevice graphicsDevice, int pixelSize, int width, int height, Color? color = null)
+		public TextureCanvas(GraphicsDevice graphicsDevice, int width, int height, Color? color = null)
 		{
 			Width = width;
 			Height = height;
-			PixelSize = pixelSize;
 
 			Texture = new Texture2D(graphicsDevice, width, height);
 			Pixels = new uint[width * height];
@@ -39,12 +38,12 @@ namespace AGE.Graphics
 					Pixels[i] = colorPackedValue;
 			}
 
-			PixelsToPixels2D();
+			UIntToPixels2D();
 
 			Texture.SetData<uint>(Pixels);
 		}
 
-		public uint[,] PixelsToPixels2D()
+		public uint[,] UIntToPixels2D()
 		{
 			int i = 0;
 			for(int y = 0; y < Height; y++)
@@ -59,7 +58,7 @@ namespace AGE.Graphics
 		/// Полностью перерисовывает текстуру. Рекомендуется при полном изменении или инициализации текстуры.
 		/// </summary>
 		/// <returns></returns>
-		public uint[] Pixels2DToPixels()
+		public uint[] Pixels2DToUInt()
 		{
 			int i = 0;
 			for(int y = 0; y < Height; y++)
@@ -81,11 +80,6 @@ namespace AGE.Graphics
 				color = color is null ? Color.Black : color;
 				Texture.SetData(0, new Rectangle(x, y, 1, 1), new Color[] { (Color)color }, 0, 1);
 			}
-		}
-
-		public void DrawLine(Vector2 start, Vector2 end, Color? color = null)
-		{
-
 		}
 
 		public void DrawRectangle(Rectangle rectangle, Color? color = null)
