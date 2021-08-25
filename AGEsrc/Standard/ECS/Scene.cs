@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input.Touch;
 using System.Collections.Generic;
 using AGE.Input;
+using AGE.Graphics;
 using AGE.ECS.Components;
 using System;
 
@@ -13,6 +14,7 @@ namespace AGE.ECS
 	{
 		public Game ParentGame;
 		public ContentManager Content;
+		public readonly PrimitivesHandler PrimitivesHandler;
 
 		public GameTime GameTime;
 		static public float DeltaTime;
@@ -34,11 +36,12 @@ namespace AGE.ECS
 		{
 			ParentGame = game;
 			Content = ParentGame.Content;
+			PrimitivesHandler = new PrimitivesHandler();
 		}
 
 		public virtual void Initialize()
 		{
-			spriteBatch = new SpriteBatch(Core.Graphics.GraphicsDevice);
+			spriteBatch = new SpriteBatch(Core.GraphicsManager.GraphicsDevice);
 
 			minCoord = Vector2.Zero;
 			maxCoord = new Vector2(ParentGame.Window.ClientBounds.Width,

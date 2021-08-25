@@ -37,7 +37,7 @@ namespace AGE.PixelPerfect.Components
 
 	public class PRenderer : Component
 	{
-		static readonly Texture2D Pixel = new Texture2D(Core.Graphics.GraphicsDevice, 1, 1);
+		static readonly Texture2D Pixel = new Texture2D(Core.GraphicsManager.GraphicsDevice, 1, 1);
 		static SpriteBatch Batch { get; set; }
 
 		PTransform Transform;

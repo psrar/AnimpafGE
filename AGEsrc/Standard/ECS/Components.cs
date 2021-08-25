@@ -18,18 +18,18 @@ namespace AGE.ECS.Components
 	public class Transform : Component
 	{
 		/// <summary>Расположение объекта на сцене</summary>
-		public Vector2 Position { get; set; } = Vector2.Zero;
+		public Vector2 Position = Vector2.Zero;
 		/// <summary>Масштаб объекта</summary>
 		public Vector2 Scaling { get; private set; } = Vector2.One;
 		/// <summary>Вращение объекта</summary>
-		public float Rotation { get; set; } = 0;
+		public float Rotation = 0;
 
 		/// <summary>Метод грубого (нефизичного) перемещения объекта</summary>
 		/// <param name="translation">Вектор перемещения</param>
 		public void Translate(Vector2 translation) => Position += translation;
 
-		/// <summary>Устанавливает вращение в градусах</summary>
-		public void Rotate(float angle) => Rotation = MathHelper.ToRadians(angle);
+		/// <summary>Вращает объект на angle градусов</summary>
+		public void Rotate(float angle) => Rotation += MathHelper.ToRadians(angle);
 
 		/// <summary>Перемещение объекта</summary>
 		public void Locate(Vector2 position) => Position = position;
@@ -64,14 +64,14 @@ namespace AGE.ECS.Components
 	/// <summary>Компонент, отвечающий за отрисовку спрайта на сцене.</summary>
 	public class SpriteRenderer : Component
 	{
-		public Texture2D Sprite { get; set; }
-		SpriteBatch Batch { get; set; }
-		public Color Color { get; set; } = Color.White;
-		public SpriteEffects Mirroring { get; set; } = SpriteEffects.None;
-		int Layer { get; set; } = 0;
+		public Texture2D Sprite;
+		private SpriteBatch Batch;
+		public Color Color = Color.White;
+		public SpriteEffects Mirroring = SpriteEffects.None;
+		int Layer = 0;
 
-		public Vector2 TopLeft { get; set; }
-		public Vector2 BottomRight { get; set; }
+		public Vector2 TopLeft;
+		public Vector2 BottomRight;
 
 		public override void Init()
 		{
@@ -109,6 +109,45 @@ namespace AGE.ECS.Components
 		{
 			Random rnd = new Random();
 			Color = new Color(rnd.Next(256), rnd.Next(256), rnd.Next(256));
+		}
+	}
+
+	public class PolygonRenderer : Component
+	{
+		private SpriteBatch Batch;
+		private PrimitivesHandler PrimitivesHandler;
+
+		List<Vertex2D> Vertices = new List<Vertex2D>();
+
+		private Texture2D Texture;
+
+		public override void Init()
+		{
+			Batch = ParentScene.spriteBatch;
+			PrimitivesHandler = ParentScene.PrimitivesHandler;
+		}
+
+		public void CreateTexture(int width, int height) =>
+			Texture = new Texture2D(ParentScene.ParentGame.GraphicsDevice, width, height);
+
+		public void AddVertices(params Vertex2D[] vertices)
+		{
+			Vertices.AddRange(vertices);
+		}
+
+		public int Count() => Vertices.Count;
+
+		public override void Process()
+		{
+			if(Vertices.Count > 1)
+			{
+				for(int i = 0; i < Vertices.Count - 1; i++)
+				{
+					PrimitivesHandler.DrawLine(Batch, Vertices[i].Position, Vertices[i + 1].Position, Color.Red, 2);
+				}
+
+				PrimitivesHandler.DrawLine(Batch, Vertices.First().Position, Vertices.Last().Position, Color.Red, 2);
+			}
 		}
 	}
 
@@ -268,6 +307,11 @@ namespace AGE.ECS.Components
 				}
 			}
 		}
+	}
+
+	public class TriggerArea
+	{
+		public Rectangle Area = new Rectangle();
 	}
 
 	/// <summary>Компонент, анимирующий объект поспрайтово.</summary>

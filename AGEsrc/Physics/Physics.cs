@@ -32,28 +32,40 @@ namespace AGE.Physics
 		TopLeft = 7
 	}
 
-	static public class Physics
+	static public class Physics2D
 	{
-		public struct Line
-		{
-			Point StartPoint, EndPoint;
-			public static Line Zero { get; } = new Line(0, 0, 0, 0);
+        public static bool LineLineIntersect(Vector2 a, Vector2 b, Vector2 c,
+            Vector2 d, out Vector2 point)
+        {
+            point = Vector2.Zero;
 
-			public Line(Point startPoint, Point endPoint)
-			{
-				StartPoint = startPoint;
-				EndPoint = endPoint;
-			}
-			public Line(Vector2 startPoint, Vector2 endPoint)
-			{
-				StartPoint = startPoint.ToPoint();
-				EndPoint = endPoint.ToPoint();
-			}
-			public Line(int x1, int y1, int x2, int y2)
-			{
-				StartPoint = new Point(x1, y1);
-				EndPoint = new Point(x2, y2);
-			}
-		}
-	}
+            double r, s;
+            double denominator = (b.X - a.X) * (d.Y - c.Y) - (b.Y - a.Y) * (d.X - c.X);
+
+            // If the denominator in above is zero, AB & CD are colinear
+            if(denominator == 0)
+            {
+                return false;
+            }
+
+            double numeratorR = (a.Y - c.Y) * (d.X - c.X) - (a.X - c.X) * (d.Y - c.Y);
+            r = numeratorR / denominator;
+
+            double numeratorS = (a.Y - c.Y) * (b.X - a.X) - (a.X - c.X) * (b.Y - a.Y);
+            s = numeratorS / denominator;
+
+            // non-intersecting
+            if(r < 0 || r > 1 || s < 0 || s > 1)
+            {
+                return false;
+            }
+
+            // find intersection point
+            point.X = (float)(a.X + (r * (b.X - a.X)));
+            point.Y = (float)(a.Y + (r * (b.Y - a.Y)));
+
+            return true;
+        }
+
+    }
 }

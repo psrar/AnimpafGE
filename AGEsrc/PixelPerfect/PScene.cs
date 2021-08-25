@@ -110,8 +110,8 @@ namespace AGE.PixelPerfect.ECS
 
 		public virtual void InitBackground(Color? color = null)
 		{
-			Background = new TextureCanvas(Core.Graphics.GraphicsDevice, Core.Graphics.PreferredBackBufferWidth,
-				Core.Graphics.PreferredBackBufferHeight, color);
+			Background = new TextureCanvas(Core.GraphicsManager.GraphicsDevice, Core.GraphicsManager.PreferredBackBufferWidth,
+				Core.GraphicsManager.PreferredBackBufferHeight, color);
 		}
 
 		public PEntity GetPixel(int x, int y) => PhysicsMap[x + y * VirtualWidth];

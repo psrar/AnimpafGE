@@ -18,7 +18,7 @@ namespace AGE.ECS
 			_graphics = new GraphicsDeviceManager(this);
 			_graphics.IsFullScreen = true;
 			_graphics.ApplyChanges();
-			Core.Graphics = _graphics;
+			Core.GraphicsManager = _graphics;
 			Core.Content = Content;
 			Content.RootDirectory = "Content";
 			IsMouseVisible = true;

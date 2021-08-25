@@ -11,7 +11,7 @@ namespace AGE
 {
 	static public class Core
 	{
-		static public GraphicsDeviceManager Graphics = null;
+		static public GraphicsDeviceManager GraphicsManager = null;
 		static public ContentManager Content = null;
 	}
 }

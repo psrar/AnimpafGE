@@ -6,3 +6,4 @@ C:\Users\pavel\Desktop\AGE\obj\Debug\netstandard2.1\AGE.AssemblyInfo.cs
 C:\Users\pavel\Desktop\AGE\obj\Debug\netstandard2.1\AGE.csproj.CoreCompileInputs.cache
 C:\Users\pavel\Desktop\AGE\obj\Debug\netstandard2.1\AGE.dll
 C:\Users\pavel\Desktop\AGE\obj\Debug\netstandard2.1\AGE.pdb
+C:\Users\pavel\Desktop\AGE\obj\Debug\netstandard2.1\AGE.csprojAssemblyReference.cache
