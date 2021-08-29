@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Linq;
-using System.Diagnostics;
-using Microsoft.Xna.Framework;
-using System.Reflection;
-using AGE.ECS.Components;
+﻿using AGE.ECS.Components;
 using AGE.PixelPerfect;
 using AGE.PixelPerfect.ECS;
+using Microsoft.Xna.Framework;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace AGE.ECS
 {

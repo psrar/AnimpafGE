@@ -11,7 +11,6 @@ namespace AGE.ECS
 {
 	public abstract class Component
 	{
-		static public readonly Type[] Unprocessable = new Type[] { typeof(Transform), typeof(Animator) };
 		public Entity Entity { get; set; }
 		public Scene ParentScene { get; set; }
 		public string Name { get; set; }

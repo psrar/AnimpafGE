@@ -1,11 +1,9 @@
-﻿using System;
-using System.Diagnostics;
-using System.Collections.Generic;
-using AGE.ECS;
-using AGE.PixelPerfect.Components;
+﻿using AGE.ECS;
+using AGE.ECS.Components;
 using AGE.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System.Collections.Generic;
 
 namespace AGE.PixelPerfect.ECS
 {
@@ -94,11 +92,11 @@ namespace AGE.PixelPerfect.ECS
 				entity.Process();
 
 			foreach(PEntity pEntity in Pixels)
-			{
 				pEntity.Process();
-			}
 
 			spriteBatch.End();
+
+			RenderPolygons();
 		}
 
 		public PEntity AddPixel(Vector2 position, Color color, bool isVisible = true)

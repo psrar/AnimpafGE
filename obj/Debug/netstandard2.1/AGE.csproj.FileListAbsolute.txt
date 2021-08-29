@@ -7,3 +7,5 @@ C:\Users\pavel\Desktop\AGE\obj\Debug\netstandard2.1\AGE.csproj.CoreCompileInputs
 C:\Users\pavel\Desktop\AGE\obj\Debug\netstandard2.1\AGE.dll
 C:\Users\pavel\Desktop\AGE\obj\Debug\netstandard2.1\AGE.pdb
 C:\Users\pavel\Desktop\AGE\obj\Debug\netstandard2.1\AGE.csprojAssemblyReference.cache
+C:\Users\pavel\Desktop\AGE\bin\Debug\netstandard2.1\Content\PolygonFX.mgfx
+C:\Users\pavel\Desktop\AGE\bin\Debug\netstandard2.1\Content\Circle.png

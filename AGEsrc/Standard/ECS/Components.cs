@@ -1,15 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using AGE.Graphics;
+using AGE.Physics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using static AGE.Extensions;
-using AGE.Physics;
-using AGE.Graphics;
-using System.Threading;
+using System;
+using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.Input;
-using System.Diagnostics;
+using System.Threading;
+using static AGE.Extensions;
 
 namespace AGE.ECS.Components
 {
@@ -115,38 +112,81 @@ namespace AGE.ECS.Components
 	public class PolygonRenderer : Component
 	{
 		private SpriteBatch Batch;
-		private PrimitivesHandler PrimitivesHandler;
+		public Effect PolygonEffect;
 
-		List<Vertex2D> Vertices = new List<Vertex2D>();
+		public List<Vertex2D> Vertices { get; private set; } = new List<Vertex2D>();
+		public List<Vector2> Positions { get; private set; } = new List<Vector2>();
+		public List<Edge2D> Edges { get; private set; } = new List<Edge2D>();
+		public List<(Vector2 s, Vector2 e)> LineSegments { get; private set; } = new List<(Vector2 s, Vector2 e)>();
+		private Vector2 topleft = Vector2.Zero;
 
-		private Texture2D Texture;
+		public Texture2D Texture;
+		public Color Color = Color.White;
+		public SpriteEffects Mirroring = SpriteEffects.None;
+		int Layer = 0;
 
 		public override void Init()
 		{
 			Batch = ParentScene.spriteBatch;
-			PrimitivesHandler = ParentScene.PrimitivesHandler;
+			Texture = new Texture2D(ParentScene.ParentGame.GraphicsDevice, 1, 1);
+			PolygonEffect = ParentScene.PolygonEffect;
+
+			ParentScene.PolygonRenderers.Add(this);
 		}
 
-		public void CreateTexture(int width, int height) =>
+		public void CreateTexture(int width, int height)
+		{
 			Texture = new Texture2D(ParentScene.ParentGame.GraphicsDevice, width, height);
+			Texture.SetData<uint>(new uint[width * height].Populate(0xFFFFFFFF));
+			PolygonEffect.Parameters["dimensions"].SetValue(new Vector2(Texture.Width, Texture.Height));
+		}
 
 		public void AddVertices(params Vertex2D[] vertices)
 		{
 			Vertices.AddRange(vertices);
-		}
 
+			Positions.Clear();
+			for(int i = 0; i < Vertices.Count; i++)
+				Positions.Add(Vertices[i].Position.ToVector2());
+
+			for(int i = 0; i < Vertices.Count - 1;)
+				Edges.Add(new Edge2D(Vertices[i], Vertices[++i]));
+
+			Edges.Add(new Edge2D(Vertices.Last(), Vertices.First()));
+
+			PolygonEffect.Parameters["vertices"].SetValue(Positions.ToArray());
+			PolygonEffect.Parameters["verticesCount"].SetValue(Positions.Count);
+		}
 		public int Count() => Vertices.Count;
 
 		public override void Process()
 		{
+			topleft = Entity.Transform.Position - Texture.Bounds.Size.ToVector2() / 2;
+			
+			for(int i = 0; i < Vertices.Count; i++)
+			{
+				Edges[i].StartPosition = Edges[i].Start.Position.ToVector2() + topleft;
+				Edges[i].EndPosition = Edges[i].End.Position.ToVector2() + topleft;
+			}
+
+			LineSegments.Clear();
+			foreach(Edge2D edge in Edges)
+				LineSegments.Add((edge.StartPosition, edge.EndPosition));
+		}
+
+		public void RenderPolygon()
+		{
 			if(Vertices.Count > 1)
 			{
-				for(int i = 0; i < Vertices.Count - 1; i++)
-				{
-					PrimitivesHandler.DrawLine(Batch, Vertices[i].Position, Vertices[i + 1].Position, Color.Red, 2);
-				}
-
-				PrimitivesHandler.DrawLine(Batch, Vertices.First().Position, Vertices.Last().Position, Color.Red, 2);
+				Batch.Draw(Texture,                          // Texture
+					Entity.Transform.Position,              // Position
+					null,                                   // Source rectangle
+					Color,                                  // Color
+					Entity.Transform.Rotation,              // Rotation
+					Texture.Bounds.Size.ToVector2() / 2,     // Origin
+					Entity.Transform.Scaling,               // Scale
+					Mirroring,                              // Mirroring effect
+					Layer);                                 // Depth
 			}
 		}
 	}

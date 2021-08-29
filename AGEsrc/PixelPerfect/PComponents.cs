@@ -1,10 +1,9 @@
 ﻿using AGE.ECS;
+using AGE.Physics;
 using AGE.PixelPerfect.ECS;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
-using AGE.Physics;
-using static System.Diagnostics.Trace;
 
 namespace AGE.PixelPerfect.Components
 {

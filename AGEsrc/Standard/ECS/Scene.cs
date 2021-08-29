@@ -1,12 +1,12 @@
-﻿using Microsoft.Xna.Framework;
+﻿using AGE.ECS.Components;
+using AGE.Graphics;
+using AGE.Input;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input.Touch;
-using System.Collections.Generic;
-using AGE.Input;
-using AGE.Graphics;
-using AGE.ECS.Components;
 using System;
+using System.Collections.Generic;
+using System.IO;
 
 namespace AGE.ECS
 {
@@ -15,6 +15,7 @@ namespace AGE.ECS
 		public Game ParentGame;
 		public ContentManager Content;
 		public readonly PrimitivesHandler PrimitivesHandler;
+		public readonly Effect PolygonEffect;
 
 		public GameTime GameTime;
 		static public float DeltaTime;
@@ -26,6 +27,7 @@ namespace AGE.ECS
 		public string Name;
 		public List<Entity> Objects = new List<Entity>();
 		public List<BoxCollider> Colliders = new List<BoxCollider>();
+		public List<PolygonRenderer> PolygonRenderers = new List<PolygonRenderer>();
 
 		public SpriteBatch spriteBatch;
 
@@ -36,7 +38,10 @@ namespace AGE.ECS
 		{
 			ParentGame = game;
 			Content = ParentGame.Content;
-			PrimitivesHandler = new PrimitivesHandler();
+			PrimitivesHandler = new PrimitivesHandler(this);
+
+			byte[] bytes = File.ReadAllBytes("Content/PolygonFX.mgfx");
+			PolygonEffect = new Effect(ParentGame.GraphicsDevice, bytes);
 		}
 
 		public virtual void Initialize()
@@ -52,10 +57,11 @@ namespace AGE.ECS
 
 		public virtual void Process(GameTime gameTime)
 		{
+			UpdateFrame++;
+
 			foreach(var item in InputProcessors)
 				item.Process();
 
-			UpdateFrame++;
 			GameTime = gameTime;
 			DeltaTime = gameTime.ElapsedGameTime.Milliseconds / 1000f;
 		}
@@ -69,6 +75,18 @@ namespace AGE.ECS
 			foreach(Entity entity in Objects)
 				entity.Process();
 
+			spriteBatch.End();
+
+			RenderPolygons();
+		}
+
+		public void RenderPolygons()
+		{
+			spriteBatch.Begin(SpriteSortMode.Immediate);
+			PolygonEffect.CurrentTechnique.Passes[0].Apply();
+			foreach(PolygonRenderer renderer in PolygonRenderers)
+				if(renderer.Enabled)
+					renderer.RenderPolygon();
 			spriteBatch.End();
 		}
 

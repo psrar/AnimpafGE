@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Text;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace AGE
 {
 	static public class Extensions
 	{
-		//Math
 		/// <summary>Устанавливает компонент вектора.</summary>
 		/// <param name="axis">X,x или Y,y</param>
 		/// <param name="value">Новое значение указанной координаты</param>
@@ -21,6 +21,9 @@ namespace AGE
 
 			return vector;
 		}
+
+		static public float Distance(this Point point, Point destination) =>
+			MathF.Sqrt(MathF.Pow(point.X - destination.X, 2) + MathF.Pow(point.Y - destination.Y, 2));
 
 		static public Vector2 IncrementVector(Vector2 vector, float value)
 			=> vector += new Vector2(value);
@@ -65,12 +68,42 @@ namespace AGE
 			return new Vector2(depthX, depthY);
 		}
 
-		/// <summary>
-		/// Gets the position of the center of the bottom edge of the rectangle.
-		/// </summary>
-		public static Vector2 GetBottomCenter(this Rectangle rect)
+		public static T[] Populate<T>(this T[] arr, T value)
 		{
-			return new Vector2(rect.X + rect.Width / 2.0f, rect.Bottom);
+			for(int i = 0; i < arr.Length; i++)
+				arr[i] = value;
+
+			return arr;
 		}
+
+		public static void Draw(this SpriteBatch spriteBatch, Texture2D texture, Vector2 position,
+			float scale, Color color)
+		{
+			spriteBatch.Draw(texture, position, null, color, 0, Vector2.Zero, scale, SpriteEffects.None, 0);
+		}
+
+		public static void Draw(this SpriteBatch spriteBatch, Texture2D texture, Vector2 position,
+			float scale, Vector2 origin, Color color)
+		{
+			spriteBatch.Draw(texture, position, null, color, 0, origin, scale, SpriteEffects.None, 0);
+		}
+
+		public static void SetPixel(this Texture2D texture, int x, int y, Color color)
+		{
+			Rectangle r = new Rectangle(x, y, 1, 1);
+			Color[] c = new Color[1];
+			c[0] = color;
+
+			texture.SetData<Color>(0, r, c, 0, 1);
+		}
+
+		public static void Fill(this Texture2D texture, Color color) =>
+			texture.SetData<uint>(new uint[texture.Width * texture.Height].Populate<uint>(color.PackedValue));
+
+		public static float Cross(this Vector2 a, Vector2 v) =>
+			a.X * v.Y - a.Y * v.X;
+
+		public static bool IsZero(this double d) =>
+			Math.Abs(d) < 1e-10; //1e - 10 - accuracy
 	}
 }
