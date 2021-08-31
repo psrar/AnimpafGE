@@ -14,6 +14,7 @@ namespace AGE.Graphics
 		public Point Position;
 
 		public Vertex2D(Point position) => Position = position;
+		public Vertex2D(Vector2 position) => Position = position.ToPoint();
 
 		public Vector2 Vector2Position() => Position.ToVector2();
 	}

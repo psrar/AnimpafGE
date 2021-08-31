@@ -118,7 +118,7 @@ namespace AGE.ECS.Components
 		public List<Vector2> Positions { get; private set; } = new List<Vector2>();
 		public List<Edge2D> Edges { get; private set; } = new List<Edge2D>();
 		public List<(Vector2 s, Vector2 e)> LineSegments { get; private set; } = new List<(Vector2 s, Vector2 e)>();
-		private Vector2 topleft = Vector2.Zero;
+		public Vector2 TopLeft { get; private set; } = Vector2.Zero;
 
 		public Texture2D Texture;
 		public Color Color = Color.White;
@@ -144,8 +144,36 @@ namespace AGE.ECS.Components
 		public void AddVertices(params Vertex2D[] vertices)
 		{
 			Vertices.AddRange(vertices);
+			UpdateEdges();
+		}
 
+		public void InsertVertex(int pos, Vertex2D vertex)
+		{
+			Vertices.Insert(pos, vertex);
+			UpdateEdges();
+		}
+
+		public void RemoveVertex(Vertex2D vertex)
+		{
+			Vertices.Remove(vertex);
+			UpdateEdges();
+		}
+		public void RemoveVertex(int pos)
+		{
+			Vertices.RemoveAt(pos);
+			UpdateEdges();
+		}
+		public void RemoveVertex(int pos, int count)
+		{
+			for(int i = 0; i < count; i++)
+				Vertices.RemoveAt(pos);
+			UpdateEdges();
+		}
+
+		private void UpdateEdges()
+		{
 			Positions.Clear();
+			Edges.Clear();
 			for(int i = 0; i < Vertices.Count; i++)
 				Positions.Add(Vertices[i].Position.ToVector2());
 
@@ -157,16 +185,17 @@ namespace AGE.ECS.Components
 			PolygonEffect.Parameters["vertices"].SetValue(Positions.ToArray());
 			PolygonEffect.Parameters["verticesCount"].SetValue(Positions.Count);
 		}
+
 		public int Count() => Vertices.Count;
 
 		public override void Process()
 		{
-			topleft = Entity.Transform.Position - Texture.Bounds.Size.ToVector2() / 2;
-			
+			TopLeft = Entity.Transform.Position - Texture.Bounds.Size.ToVector2() / 2;
+
 			for(int i = 0; i < Vertices.Count; i++)
 			{
-				Edges[i].StartPosition = Edges[i].Start.Position.ToVector2() + topleft;
-				Edges[i].EndPosition = Edges[i].End.Position.ToVector2() + topleft;
+				Edges[i].StartPosition = Edges[i].Start.Position.ToVector2() + TopLeft;
+				Edges[i].EndPosition = Edges[i].End.Position.ToVector2() + TopLeft;
 			}
 
 			LineSegments.Clear();

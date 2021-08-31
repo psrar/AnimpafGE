@@ -7,7 +7,7 @@
 
 sampler s0;
 const uniform float2 dimensions;
-const uniform float2 vertices[12];
+const uniform float2 vertices[30];
 const uniform int verticesCount;
 
 int isLeftOfLine(float2 pos, float2 linePoint1, float2 linePoint2)
