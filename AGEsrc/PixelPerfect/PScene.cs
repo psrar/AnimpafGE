@@ -26,7 +26,6 @@ namespace AGE.PixelPerfect.ECS
 		public PScene(Game game, int pixelSize, int width, int height, string name = null) : base(game)
 		{
 			Name = name ?? "SimpleScene";
-			ParentGame.IsMouseVisible = true;
 
 			PixelSize = pixelSize;
 			Width = width;
@@ -85,18 +84,18 @@ namespace AGE.PixelPerfect.ECS
 
 		public override void Render(GameTime gameTime)
 		{
-			spriteBatch.Begin(samplerState: SamplerState.PointClamp);
+			RenderPolygons();
+
+			spriteBatch.Begin(SpriteSortMode.BackToFront, samplerState: SamplerState.PointClamp);
 			spriteBatch.Draw(Background.Texture, Vector2.Zero, Color.White);
 
-			foreach(Entity entity in Objects)
-				entity.Process();
+			for(int i = 0; i < Objects.Count; i++)
+				Objects[i].Process();
 
-			foreach(PEntity pEntity in Pixels)
-				pEntity.Process();
+			for(int i = 0; i < Pixels.Count; i++)
+				Pixels[i].Process();
 
 			spriteBatch.End();
-
-			RenderPolygons();
 		}
 
 		public PEntity AddPixel(Vector2 position, Color color, bool isVisible = true)

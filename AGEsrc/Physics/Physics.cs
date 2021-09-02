@@ -121,8 +121,7 @@ namespace AGE.Physics
 
 			return intersections.ToArray();
 		}
-		public static (Vector2 point, Edge2D edge)[]
-			LineSegmentsIntersection(Vector2 s1, Vector2 e1, params Edge2D[] edges)
+		public static (Vector2 point, Edge2D edge)[] LineSegmentsIntersection(Vector2 s1, Vector2 e1, params Edge2D[] edges)
 		{
 			List<(Vector2 point, Edge2D edge)> intersections = new List<(Vector2 point, Edge2D edge)>();
 			Vector2 i;
@@ -131,6 +130,30 @@ namespace AGE.Physics
 					intersections.Add((i, edge));
 
 			return intersections.ToArray();
+		}
+
+		public static float FindDistanceToSegment(
+	Vector2 point, Vector2 segmentStart, Vector2 segmentEnd, out Vector2 closestPoint)
+		{
+			float dx = segmentEnd.X - segmentStart.X;
+			float dy = segmentEnd.Y - segmentStart.Y;
+			if((dx == 0) && (dy == 0))
+			{
+				closestPoint = segmentStart;
+				return Vector2.Distance(closestPoint, point);
+			}
+
+			float t = ((point.X - segmentStart.X) * dx + (point.Y - segmentStart.Y) * dy) /
+				(dx * dx + dy * dy);
+
+			if(t < 0)
+				closestPoint = segmentStart;
+			else if(t > 1)
+				closestPoint = segmentEnd;
+			else
+				closestPoint = new Vector2(segmentStart.X + t * dx, segmentStart.Y + t * dy);
+
+			return Vector2.Distance(closestPoint, point);
 		}
 	}
 }

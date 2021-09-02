@@ -18,12 +18,16 @@ namespace AGE
 		}
 
 		/// <summary>
-		/// Min and max are inclusive int vectors.
+		/// a and b are inclusive int vectors.
 		/// </summary>
-		static public Vector2 GetRandomPosition(Vector2 min, Vector2 max)
+		static public Vector2 GetRandomPosition(Vector2 a, Vector2 b)
 		{
 			Random rnd = new Random();
-			return new Vector2(rnd.Next((int)min.X, (int)max.X + 1), rnd.Next((int)min.Y, (int)max.Y + 1));
+			int minX = (int)MathF.Min(a.X, b.X);
+			int maxX = (int)MathF.Max(a.X, b.X);
+			int minY = (int)MathF.Min(a.Y, b.Y);
+			int maxY = (int)MathF.Max(a.Y, b.Y);
+			return new Vector2(rnd.Next(minX, maxX + 1), rnd.Next(minY, maxY + 1));
 		}
 	}
 

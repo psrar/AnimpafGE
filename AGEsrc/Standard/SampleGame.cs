@@ -16,7 +16,7 @@ namespace AGE.ECS
 		public SampleGame()
 		{
 			_graphics = new GraphicsDeviceManager(this);
-			_graphics.IsFullScreen = true;
+			_graphics.IsFullScreen = false;
 			_graphics.ApplyChanges();
 			Core.GraphicsManager = _graphics;
 			Core.Content = Content;

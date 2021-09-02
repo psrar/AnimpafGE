@@ -93,30 +93,32 @@ public class PrimitivesHandler
 		spriteBatch.End();
 	}
 
-	//public Texture2D CreateCircle(int radius)
-	//{
-	//	int outerRadius = radius * 2 + 2;//So circle doesn't go out of bounds
-	//	Texture2D texture = new Texture2D(Core.GraphicsManager.GraphicsDevice, outerRadius, outerRadius);
+	public Texture2D GetCircleTexture() => circle;
 
-	//	Color[] data = new Color[outerRadius * outerRadius];
+	public Texture2D CreateCircleTexture(int radius)
+	{
+		int outerRadius = radius * 2 + 2;//So circle doesn't go out of bounds
+		Texture2D texture = new Texture2D(Core.GraphicsManager.GraphicsDevice, outerRadius, outerRadius);
 
-	//	//Colour the entire texture transparent first.
-	//	for(int i = 0; i < data.Length; i++)
-	//		data[i] = Color.Transparent;
+		Color[] data = new Color[outerRadius * outerRadius];
 
-	//	//Work out the minimum step necessary using trigonometry + sine approximation.
-	//	double angleStep = 1f / radius;
+		//Colour the entire texture transparent first.
+		for(int i = 0; i < data.Length; i++)
+			data[i] = Color.Transparent;
 
-	//	for(double angle = 0; angle < Math.PI * 2; angle += angleStep)
-	//	{
-	//		//Use the parametric definition of a circle: http://en.wikipedia.org/wiki/Circle#Cartesian_coordinates
-	//		int x = (int)Math.Round(radius + radius * Math.Cos(angle));
-	//		int y = (int)Math.Round(radius + radius * Math.Sin(angle));
+		//Work out the minimum step necessary using trigonometry + sine approximation.
+		double angleStep = 1f / radius;
 
-	//		data[y * outerRadius + x + 1] = Color.White;
-	//	}
+		for(double angle = 0; angle < Math.PI * 2; angle += angleStep)
+		{
+			//Use the parametric definition of a circle: http://en.wikipedia.org/wiki/Circle#Cartesian_coordinates
+			int x = (int)Math.Round(radius + radius * Math.Cos(angle));
+			int y = (int)Math.Round(radius + radius * Math.Sin(angle));
 
-	//	texture.SetData(data);
-	//	return texture;
-	//}
+			data[y * outerRadius + x + 1] = Color.White;
+		}
+
+		texture.SetData(data);
+		return texture;
+	}
 }

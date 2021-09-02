@@ -70,19 +70,19 @@ namespace AGE.ECS
 		{
 			RenderFrame++;
 
+			RenderPolygons();
+
 			spriteBatch.Begin(samplerState: SamplerState.PointClamp);
 
 			foreach(Entity entity in Objects)
 				entity.Process();
 
 			spriteBatch.End();
-
-			RenderPolygons();
 		}
 
 		public void RenderPolygons()
 		{
-			spriteBatch.Begin(SpriteSortMode.Immediate);
+			spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend);
 			PolygonEffect.CurrentTechnique.Passes[0].Apply();
 			foreach(PolygonRenderer renderer in PolygonRenderers)
 				if(renderer.Enabled)

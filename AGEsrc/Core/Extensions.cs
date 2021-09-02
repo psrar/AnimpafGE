@@ -100,10 +100,11 @@ namespace AGE
 		public static void Fill(this Texture2D texture, Color color) =>
 			texture.SetData<uint>(new uint[texture.Width * texture.Height].Populate<uint>(color.PackedValue));
 
-		public static float Cross(this Vector2 a, Vector2 v) =>
-			a.X * v.Y - a.Y * v.X;
-
-		public static bool IsZero(this double d) =>
-			Math.Abs(d) < 1e-10; //1e - 10 - accuracy
+		public static float DistanceToLine(this Vector2 position, Vector2 lineStart, Vector2 lineEnd)
+		{
+			return MathF.Abs((position.X - lineStart.X) * (-lineEnd.Y + lineStart.Y) + (position.Y - lineStart.Y) *
+				(lineEnd.X - lineStart.X)) / MathF.Sqrt(
+					MathF.Pow(-lineEnd.Y + lineStart.Y, 2) + MathF.Pow(lineEnd.X - lineStart.X, 2));
+		}
 	}
 }

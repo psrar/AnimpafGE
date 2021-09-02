@@ -65,7 +65,7 @@ namespace AGE.ECS.Components
 		private SpriteBatch Batch;
 		public Color Color = Color.White;
 		public SpriteEffects Mirroring = SpriteEffects.None;
-		int Layer = 0;
+		public int Layer = 0;
 
 		public Vector2 TopLeft;
 		public Vector2 BottomRight;
@@ -123,7 +123,6 @@ namespace AGE.ECS.Components
 		public Texture2D Texture;
 		public Color Color = Color.White;
 		public SpriteEffects Mirroring = SpriteEffects.None;
-		int Layer = 0;
 
 		public override void Init()
 		{
@@ -210,12 +209,12 @@ namespace AGE.ECS.Components
 				Batch.Draw(Texture,                          // Texture
 					Entity.Transform.Position,              // Position
 					null,                                   // Source rectangle
-					Color,                                  // Color
+					Color.White,                                  // Color
 					Entity.Transform.Rotation,              // Rotation
 					Texture.Bounds.Size.ToVector2() / 2,     // Origin
 					Entity.Transform.Scaling,               // Scale
 					Mirroring,                              // Mirroring effect
-					Layer);                                 // Depth
+					0);                                 // Depth
 			}
 		}
 	}
