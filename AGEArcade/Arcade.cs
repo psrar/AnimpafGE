@@ -45,7 +45,7 @@ namespace AGE.Arcade
 		{
 			Body = AddComponent<RigidBody>();
 			Renderer = AddComponent<SpriteRenderer>();
-			Renderer.Sprite = sprite;
+			Renderer.SetSprite(sprite);
 			Collider = AddComponent<BoxCollider>();
 			Transform.SetScaling(scale);
 
@@ -63,10 +63,10 @@ namespace AGE.Arcade
 				Input.TrackButton(layout.HeavyAttack);
 				Input.TrackButton(layout.Block);
 
-				Input.AlignDirectionButton(Direction.Up, layout.Up);
-				Input.AlignDirectionButton(Direction.Right, layout.Right);
-				Input.AlignDirectionButton(Direction.Down, layout.Down);
-				Input.AlignDirectionButton(Direction.Left, layout.Left);
+				Input.AlignDirectionButton(Directions.Up, layout.Up);
+				Input.AlignDirectionButton(Directions.Right, layout.Right);
+				Input.AlignDirectionButton(Directions.Down, layout.Down);
+				Input.AlignDirectionButton(Directions.Left, layout.Left);
 
 				Input.ButtonClicked += OnButtonClicked;
 			}

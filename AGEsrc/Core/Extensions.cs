@@ -30,6 +30,17 @@ namespace AGE
 		static public Vector2 IncrementVector(ref Vector2 vector, float value) =>
 			vector += new Vector2(value);
 
+		static public float GetAngleIneDegrees(this Vector2 start, Vector2 destination)
+		{
+			Vector2 direction = destination - start;
+			return MathHelper.ToDegrees(MathF.Atan2(direction.Y, direction.X));
+		}
+		static public float GetAngleInRadians(this Vector2 start, Vector2 destination)
+		{
+			Vector2 direction = destination - start;
+			return MathF.Atan2(direction.Y, direction.X);
+		}
+
 		/// <summary>
 		/// Calculates the signed depth of intersection between two rectangles.
 		/// </summary>

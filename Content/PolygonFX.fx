@@ -9,6 +9,7 @@ sampler s0;
 const uniform float2 dimensions;
 const uniform float2 vertices[30];
 const uniform int verticesCount;
+const uniform float4 color;
 
 int isLeftOfLine(float2 pos, float2 linePoint1, float2 linePoint2)
 {
@@ -29,6 +30,7 @@ float4 PixelShaderFunction(float2 coords : TEXCOORD0) : COLOR0
     else
     {
         float2 texCoords = coords * dimensions;
+        float4 texColor = tex2D(s0, coords);
         int result = 0;
     
         for (int i = 0; i < verticesCount - 1; i++)
@@ -37,7 +39,7 @@ float4 PixelShaderFunction(float2 coords : TEXCOORD0) : COLOR0
         result += isLeftOfLine(texCoords, vertices[verticesCount - 1], vertices[0]);
     
         if (result == verticesCount)
-            return 1;
+            return texColor * color;
         else
             return 0;
     }

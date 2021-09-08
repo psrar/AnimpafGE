@@ -19,14 +19,16 @@ namespace AGE.ECS.Components
 		/// <summary>Масштаб объекта</summary>
 		public Vector2 Scaling { get; private set; } = Vector2.One;
 		/// <summary>Вращение объекта</summary>
-		public float Rotation = 0;
+		private float Rotation = 0;
 
 		/// <summary>Метод грубого (нефизичного) перемещения объекта</summary>
 		/// <param name="translation">Вектор перемещения</param>
 		public void Translate(Vector2 translation) => Position += translation;
 
-		/// <summary>Вращает объект на angle градусов</summary>
-		public void Rotate(float angle) => Rotation += MathHelper.ToRadians(angle);
+		public void SetRotationInRadians(float radians) => Rotation = radians;
+		public void SetRotationInDegrees(float degrees) => Rotation = MathHelper.ToRadians(degrees);
+		public float GetRotationInRadians() => Rotation;
+		public float GetRotationInDegrees() => MathHelper.ToDegrees(Rotation);
 
 		/// <summary>Перемещение объекта</summary>
 		public void Locate(Vector2 position) => Position = position;
@@ -61,9 +63,10 @@ namespace AGE.ECS.Components
 	/// <summary>Компонент, отвечающий за отрисовку спрайта на сцене.</summary>
 	public class SpriteRenderer : Component
 	{
-		public Texture2D Sprite;
+		public Texture2D Sprite { get; private set; }
 		private SpriteBatch Batch;
 		public Color Color = Color.White;
+		public Vector2 Origin;
 		public SpriteEffects Mirroring = SpriteEffects.None;
 		public int Layer = 0;
 
@@ -73,17 +76,8 @@ namespace AGE.ECS.Components
 		public override void Init()
 		{
 			Batch = ParentScene.spriteBatch;
-			if(Sprite != null)
-			{
-				TopLeft = new Vector2(Sprite.Bounds.Size.X * Entity.Transform.Scaling.X / 2,
-					Sprite.Bounds.Size.Y * Entity.Transform.Scaling.Y / 2);
-				BottomRight = TopLeft;
-			}
-			else
-			{
-				TopLeft = Entity.Transform.Position;
-				BottomRight = TopLeft;
-			}
+			TopLeft = Entity.Transform.Position;
+			BottomRight = TopLeft;
 		}
 
 		public override void Process()
@@ -94,12 +88,23 @@ namespace AGE.ECS.Components
 					Entity.Transform.Position,              // Position
 					null,                                   // Source rectangle
 					Color,                                  // Color
-					Entity.Transform.Rotation,              // Rotation
-					Sprite.Bounds.Size.ToVector2() / 2,     // Origin
+					Entity.Transform.GetRotationInRadians(),// Rotation
+					Origin,                                 // Origin
 					Entity.Transform.Scaling,               // Scale
 					Mirroring,                              // Mirroring effect
 					Layer);                                 // Depth
 			}
+		}
+
+		public SpriteRenderer SetSprite(Texture2D sprite)
+		{
+			Sprite = sprite;
+			TopLeft = new Vector2(Sprite.Bounds.Size.X * Entity.Transform.Scaling.X / 2,
+					Sprite.Bounds.Size.Y * Entity.Transform.Scaling.Y / 2);
+			BottomRight = TopLeft;
+			Origin = Sprite.Bounds.Size.ToVector2() / 2;
+
+			return this;
 		}
 
 		public void SetRandomColor()
@@ -120,8 +125,8 @@ namespace AGE.ECS.Components
 		public List<(Vector2 s, Vector2 e)> LineSegments { get; private set; } = new List<(Vector2 s, Vector2 e)>();
 		public Vector2 TopLeft { get; private set; } = Vector2.Zero;
 
-		public Texture2D Texture;
-		public Color Color = Color.White;
+		private Texture2D Texture;
+		public Color Color { get; private set; }
 		public SpriteEffects Mirroring = SpriteEffects.None;
 
 		public override void Init()
@@ -131,6 +136,8 @@ namespace AGE.ECS.Components
 			PolygonEffect = ParentScene.PolygonEffect;
 
 			ParentScene.PolygonRenderers.Add(this);
+
+			SetColor(Color.White);
 		}
 
 		public void CreateTexture(int width, int height)
@@ -138,6 +145,18 @@ namespace AGE.ECS.Components
 			Texture = new Texture2D(ParentScene.ParentGame.GraphicsDevice, width, height);
 			Texture.SetData<uint>(new uint[width * height].Populate(0xFFFFFFFF));
 			PolygonEffect.Parameters["dimensions"].SetValue(new Vector2(Texture.Width, Texture.Height));
+		}
+
+		public void FillWithRectangle()
+		{
+			AddVertices(new Vertex2D[]
+			{
+				new Vertex2D(new Point(0, 0)),
+				new Vertex2D(new Point(0, Texture.Height)),
+				new Vertex2D(new Point(Texture.Width, Texture.Height)),
+				new Vertex2D(new Point(Texture.Width, 0)),
+			});
+
 		}
 
 		public void AddVertices(params Vertex2D[] vertices)
@@ -169,6 +188,8 @@ namespace AGE.ECS.Components
 			UpdateEdges();
 		}
 
+		public void RemoveAllVertices() => Vertices.Clear();
+
 		private void UpdateEdges()
 		{
 			Positions.Clear();
@@ -185,7 +206,28 @@ namespace AGE.ECS.Components
 			PolygonEffect.Parameters["verticesCount"].SetValue(Positions.Count);
 		}
 
+		public void SetColor(Color color)
+		{
+			Color = color;
+			Vector4 v = color.ToVector4();
+			PolygonEffect.Parameters["color"].SetValue(color.ToVector4());
+		}
+
+		public void SetTexture(Texture2D texture)
+		{
+			Texture = texture;
+			PolygonEffect.Parameters["dimensions"].SetValue(new Vector2(Texture.Width, Texture.Height));
+		}
+
 		public int Count() => Vertices.Count;
+
+		public float GetPolygonArea()
+		{
+			var points = Vertices.ToList();
+			points.Add(Vertices[0]);
+			return Math.Abs(points.Take(points.Count - 1).Select((p, i) => (points[i + 1].Position.X - p.Position.X)
+			* (points[i + 1].Position.Y + p.Position.Y)).Sum() / 2);
+		}
 
 		public override void Process()
 		{
@@ -209,8 +251,8 @@ namespace AGE.ECS.Components
 				Batch.Draw(Texture,                          // Texture
 					Entity.Transform.Position,              // Position
 					null,                                   // Source rectangle
-					Color.White,                                  // Color
-					Entity.Transform.Rotation,              // Rotation
+					Color.HotPink,                                  // Color
+					Entity.Transform.GetRotationInRadians(),              // Rotation
 					Texture.Bounds.Size.ToVector2() / 2,     // Origin
 					Entity.Transform.Scaling,               // Scale
 					Mirroring,                              // Mirroring effect
@@ -467,7 +509,7 @@ namespace AGE.ECS.Components
 
 		private void NextSprite(object obj)
 		{
-			spriteRenderer.Sprite = CurrentAnimation.SpriteSheet[++frame];
+			spriteRenderer.SetSprite(CurrentAnimation.SpriteSheet[++frame]);
 
 			if(frame == CurrentAnimation.SpriteSheet.Length - 1)
 			{

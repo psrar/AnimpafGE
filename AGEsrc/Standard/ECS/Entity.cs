@@ -87,5 +87,7 @@ namespace AGE.ECS
 			else
 				return null;
 		}
+
+		public void Destroy() => ParentScene.DestroyEntity(this);
 	}
 }

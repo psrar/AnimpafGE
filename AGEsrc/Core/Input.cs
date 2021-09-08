@@ -10,21 +10,29 @@ using System.Diagnostics;
 
 namespace AGE.Input
 {
-	public enum Direction { Up, Right, Down, Left }
+	public enum Directions { Up, Right, Down, Left }
+	public enum MouseButtons { Left, Middle, Right }
 
 
 	public class InputProcessor
 	{
+		public MouseState MouseState { get; private set; }
+		private MouseState oldMouseState = Mouse.GetState();
+
+		public TouchCollection Touches { get; private set; }
+
 		List<Keys> TrackedButtons = new List<Keys>();
 		public List<Keys> PushedKeys = new List<Keys>();
 		public Keys[] DirectionKeys { get; private set; } = new Keys[4];
 
 		public delegate void ButtonHandler(Keys key);
+		public delegate void MouseHandler(MouseState mouseState, MouseButtons button);
 		public delegate void TouchHandler(TouchCollection touches);
 
 		public event ButtonHandler ButtonClicked = delegate { };
 		public event ButtonHandler ButtonReleased = delegate { };
 		public event ButtonHandler ButtonHeld = delegate { };
+		public event MouseHandler MouseButtonClicked = delegate { };
 		public event TouchHandler Touching = delegate { };
 
 		private static Vector2 axis;
@@ -38,9 +46,18 @@ namespace AGE.Input
 
 		public void Process()
 		{
-			TouchCollection touches = TouchPanel.GetState();
-			if(touches.Count > 0)
-				Touching(touches);
+			Touches = TouchPanel.GetState();
+			MouseState = Mouse.GetState();
+
+			if(MouseState.LeftButton == ButtonState.Pressed && oldMouseState.LeftButton == ButtonState.Released)
+				MouseButtonClicked(MouseState, MouseButtons.Left);
+			if(MouseState.MiddleButton == ButtonState.Pressed && oldMouseState.MiddleButton == ButtonState.Released)
+				MouseButtonClicked(MouseState, MouseButtons.Middle);
+			if(MouseState.RightButton == ButtonState.Pressed && oldMouseState.RightButton == ButtonState.Released)
+				MouseButtonClicked(MouseState, MouseButtons.Right);
+
+			if(Touches.Count > 0)
+				Touching(Touches);
 
 			foreach(Keys key in TrackedButtons)
 				if(Keyboard.GetState().IsKeyDown(key))
@@ -77,6 +94,8 @@ namespace AGE.Input
 				axis.SetAxis('x', -1);
 			else
 				Axis *= Vector2.UnitY;
+
+			oldMouseState = MouseState;
 		}
 
 		public void TrackButton(params Keys[] keys)
@@ -87,20 +106,20 @@ namespace AGE.Input
 
 			TrackedButtons.AddRange(keys);
 		}
-		public void AlignDirectionButton(Direction direction, Keys key)
+		public void AlignDirectionButton(Directions direction, Keys key)
 		{
 			switch(direction)
 			{
-				case Direction.Up:
+				case Directions.Up:
 					DirectionKeys[0] = key;
 					break;
-				case Direction.Right:
+				case Directions.Right:
 					DirectionKeys[1] = key;
 					break;
-				case Direction.Down:
+				case Directions.Down:
 					DirectionKeys[2] = key;
 					break;
-				case Direction.Left:
+				case Directions.Left:
 					DirectionKeys[3] = key;
 					break;
 			}
